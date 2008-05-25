@@ -1,0 +1,383 @@
+Index: trunk/src/gcuserview.cpp
+===================================================================
+--- trunk.orig/src/gcuserview.cpp	2007-11-22 20:25:11.000000000 +0200
++++ trunk/src/gcuserview.cpp	2007-11-22 20:25:56.000000000 +0200
+@@ -332,10 +332,34 @@
+ 	pm->insertItem(IconsetFactory::icon("psi/sendMessage").icon(), tr("Send &message"), 0);
+ 	pm->insertItem(IconsetFactory::icon("psi/start-chat").icon(), tr("Open &chat window"), 1);
+ 	pm->insertSeparator();
+-	pm->insertItem(tr("&Kick"),10);
+-	pm->setItemEnabled(10, MUCManager::canKick(c->s.mucItem(),lvi->s.mucItem()));
+-	pm->insertItem(tr("&Ban"),11);
+-	pm->setItemEnabled(11, MUCManager::canBan(c->s.mucItem(),lvi->s.mucItem()));
++
++	// Kick and Ban submenus
++	QStringList reasons = PsiOptions::instance()->getOption("options.muc.reasons").toStringList();
++	int cntReasons=reasons.count();
++	if (cntReasons>99) cntReasons=99; // Only first 99 reasons
++	
++	Q3PopupMenu *kickMenu = new Q3PopupMenu(pm);
++	kickMenu->insertItem(tr("No reason"),10);
++	kickMenu->insertItem(tr("Custom reason"),100);
++	kickMenu->insertSeparator();
++	bool canKick=MUCManager::canKick(c->s.mucItem(),lvi->s.mucItem());
++	for (int i=0; i<cntReasons; ++i)
++		kickMenu->insertItem(reasons[i], 101+i);
++	kickMenu->setEnabled(canKick);
++	
++	Q3PopupMenu *banMenu = new Q3PopupMenu(pm);
++        banMenu->insertItem(tr("No reason"),11);
++	banMenu->insertItem(tr("Custom reason"),200);
++	banMenu->insertSeparator();
++	bool canBan=MUCManager::canBan(c->s.mucItem(),lvi->s.mucItem());
++	for (int i=0; i<cntReasons; ++i)
++		banMenu->insertItem(reasons[i], 201+i);
++	banMenu->setEnabled(canBan);
++
++	pm->insertItem(tr("&Kick"), kickMenu);
++	pm->setItemEnabled(10, canKick);
++	pm->insertItem(tr("&Ban"), banMenu);
++	pm->setItemEnabled(11, canBan);
+ 
+ 	Q3PopupMenu* rm = new Q3PopupMenu(pm);
+ 	rm->insertItem(tr("Visitor"),12);
+@@ -369,7 +392,8 @@
+ 	pm->insertItem(tr("Check &Status"), 2);
+ 	pm->insertItem(IconsetFactory::icon("psi/vCard").icon(), tr("User &Info"), 3);
+ 	int x = pm->exec(pos);
+-	bool enabled = pm->isItemEnabled(x) || rm->isItemEnabled(x);
++	bool enabled = pm->isItemEnabled(x) || rm->isItemEnabled(x) 
++		|| kickMenu->isItemEnabled(x) || banMenu->isItemEnabled(x);
+ 	delete pm;
+ 
+ 	if(x == -1 || !enabled || lvi.isNull())
+Index: trunk/src/groupchatdlg.cpp
+===================================================================
+--- trunk.orig/src/groupchatdlg.cpp	2007-11-22 20:25:11.000000000 +0200
++++ trunk/src/groupchatdlg.cpp	2007-11-22 20:25:56.000000000 +0200
+@@ -77,6 +77,7 @@
+ #include "psicontactlist.h"
+ #include "accountlabel.h"
+ #include "gcuserview.h"
++#include "mucreasonseditor.h"
+ 
+ #ifdef Q_WS_WIN
+ #include <windows.h>
+@@ -1459,6 +1460,32 @@
+ 		if (contact->s.mucItem().role() != MUCItem::Moderator)
+ 			d->mucManager->setRole(nick, MUCItem::Moderator);
+ 	}
++	else if(x >= 100 && x<300) {
++		// Kick || Ban with reason
++		QString reason;
++		QStringList reasons = PsiOptions::instance()->getOption("options.muc.reasons").toStringList();
++		if (x==100 || x==200) {
++			// Show custom reason dialog
++			MUCReasonsEditor *editor=new MUCReasonsEditor(this);
++			if (editor->exec())
++				reason=editor->reason();
++			delete editor;
++		} else {
++			int idx = (x<200) ? x-101 : x-201;
++			if (idx<reasons.count())
++				reason=reasons[idx];
++		}
++		if (!reason.isEmpty()) {
++			if (x<200)
++				d->mucManager->kick(nick, reason);
++			else {
++				GCUserViewItem *contact = (GCUserViewItem*) ui_.lv_users->findEntry(nick);
++				if (!contact) return;
++				d->mucManager->ban(contact->s.mucItem().jid(), reason);
++			}
++		}
++
++	}
+ 	/*else if(x == 15) {
+ 		GCUserViewItem *contact = (GCUserViewItem*) ui_.lv_users->findEntry(nick);
+ 		if (contact->s.mucItem().affiliation() != MUCItem::NoAffiliation)
+Index: trunk/src/mucreasonseditor.cpp
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ trunk/src/mucreasonseditor.cpp	2007-11-22 20:25:56.000000000 +0200
+@@ -0,0 +1,44 @@
++#include "mucreasonseditor.h"
++#include "common.h"
++#include "psioptions.h"
++
++
++MUCReasonsEditor::MUCReasonsEditor(QWidget* parent)
++	: QDialog(parent)
++{
++	ui_.setupUi(this);
++	ui_.lstReasons->addItems(PsiOptions::instance()->getOption("options.muc.reasons").toStringList());
++}
++
++MUCReasonsEditor::~MUCReasonsEditor()
++{	
++}
++
++void MUCReasonsEditor::accept()
++{
++	QStringList reasons;
++	int cnt=ui_.lstReasons->count();
++	for (int i=0; i<cnt; ++i)
++		reasons.append(ui_.lstReasons->item(i)->text());
++	PsiOptions::instance()->setOption("options.muc.reasons", reasons);
++	reason_=ui_.txtReason->text();
++	QDialog::accept();
++}
++
++void MUCReasonsEditor::on_btnAdd_clicked()
++{
++	reason_=ui_.txtReason->text().trimmed();
++	if (reason_.isEmpty())
++		return;
++	ui_.lstReasons->addItem(reason_);
++}
++
++void MUCReasonsEditor::on_btnRemove_clicked()
++{
++	int idx=ui_.lstReasons->currentRow();
++	if (idx>=0) {
++		QListWidgetItem *item =ui_.lstReasons->takeItem(idx);
++		if (item) delete item;
++	}
++}
++
+Index: trunk/src/mucreasonseditor.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ trunk/src/mucreasonseditor.h	2007-11-22 20:25:56.000000000 +0200
+@@ -0,0 +1,25 @@
++#ifndef MUCREASONSEDITOR_H
++#define MUCREASONSEDITOR_H
++
++#include <QDialog>
++
++#include "ui_mucreasonseditor.h"
++
++class MUCReasonsEditor: public QDialog
++{
++	Q_OBJECT
++public:
++	MUCReasonsEditor(QWidget* parent = 0);
++	~MUCReasonsEditor();
++	QString reason() const { return reason_; }
++private:
++	Ui::MUCReasonsEditor ui_;
++	QString reason_;
++private slots:
++	void on_btnAdd_clicked();
++	void on_btnRemove_clicked();
++protected slots:
++	void accept();
++};
++
++#endif
+Index: trunk/src/mucreasonseditor.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ trunk/src/mucreasonseditor.ui	2007-11-22 20:25:56.000000000 +0200
+@@ -0,0 +1,151 @@
++<ui version="4.0" >
++ <class>MUCReasonsEditor</class>
++ <widget class="QDialog" name="MUCReasonsEditor" >
++  <property name="geometry" >
++   <rect>
++    <x>0</x>
++    <y>0</y>
++    <width>400</width>
++    <height>300</height>
++   </rect>
++  </property>
++  <property name="windowTitle" >
++   <string>Reason editor</string>
++  </property>
++  <layout class="QVBoxLayout" >
++   <property name="margin" >
++    <number>9</number>
++   </property>
++   <property name="spacing" >
++    <number>6</number>
++   </property>
++   <item>
++    <widget class="QGroupBox" name="groupBox" >
++     <property name="title" >
++      <string>Reasons</string>
++     </property>
++     <layout class="QVBoxLayout" >
++      <property name="margin" >
++       <number>9</number>
++      </property>
++      <property name="spacing" >
++       <number>6</number>
++      </property>
++      <item>
++       <widget class="QLineEdit" name="txtReason" >
++        <property name="text" >
++         <string/>
++        </property>
++       </widget>
++      </item>
++      <item>
++       <widget class="QListWidget" name="lstReasons" />
++      </item>
++      <item>
++       <layout class="QHBoxLayout" >
++        <property name="margin" >
++         <number>0</number>
++        </property>
++        <property name="spacing" >
++         <number>6</number>
++        </property>
++        <item>
++         <widget class="QPushButton" name="btnAdd" >
++          <property name="text" >
++           <string>Add</string>
++          </property>
++         </widget>
++        </item>
++        <item>
++         <widget class="QPushButton" name="btnRemove" >
++          <property name="text" >
++           <string>Remove</string>
++          </property>
++         </widget>
++        </item>
++       </layout>
++      </item>
++     </layout>
++    </widget>
++   </item>
++   <item>
++    <layout class="QHBoxLayout" >
++     <property name="margin" >
++      <number>0</number>
++     </property>
++     <property name="spacing" >
++      <number>6</number>
++     </property>
++     <item>
++      <spacer>
++       <property name="orientation" >
++        <enum>Qt::Horizontal</enum>
++       </property>
++       <property name="sizeHint" >
++        <size>
++         <width>40</width>
++         <height>20</height>
++        </size>
++       </property>
++      </spacer>
++     </item>
++     <item>
++      <widget class="QPushButton" name="btnOk" >
++       <property name="text" >
++        <string>Ok</string>
++       </property>
++       <property name="autoDefault" >
++        <bool>false</bool>
++       </property>
++       <property name="default" >
++        <bool>true</bool>
++       </property>
++      </widget>
++     </item>
++     <item>
++      <widget class="QPushButton" name="btnCancel" >
++       <property name="text" >
++        <string>Cancel</string>
++       </property>
++      </widget>
++     </item>
++    </layout>
++   </item>
++  </layout>
++ </widget>
++ <resources/>
++ <connections>
++  <connection>
++   <sender>btnOk</sender>
++   <signal>clicked()</signal>
++   <receiver>MUCReasonsEditor</receiver>
++   <slot>accept()</slot>
++   <hints>
++    <hint type="sourcelabel" >
++     <x>265</x>
++     <y>271</y>
++    </hint>
++    <hint type="destinationlabel" >
++     <x>-2</x>
++     <y>287</y>
++    </hint>
++   </hints>
++  </connection>
++  <connection>
++   <sender>btnCancel</sender>
++   <signal>clicked()</signal>
++   <receiver>MUCReasonsEditor</receiver>
++   <slot>reject()</slot>
++   <hints>
++    <hint type="sourcelabel" >
++     <x>341</x>
++     <y>283</y>
++    </hint>
++    <hint type="destinationlabel" >
++     <x>81</x>
++     <y>272</y>
++    </hint>
++   </hints>
++  </connection>
++ </connections>
++</ui>
+Index: trunk/src/psi_profiles.cpp
+===================================================================
+--- trunk.orig/src/psi_profiles.cpp	2007-11-22 20:25:11.000000000 +0200
++++ trunk/src/psi_profiles.cpp	2007-11-22 20:25:56.000000000 +0200
+@@ -641,6 +641,9 @@
+ 	LEGOPTP.gcNickColors << "Purple";
+ 	LEGOPTP.gcNickColors << "Red";
+ 
++	// kick/ban reasons
++	LEGOPTP.gcReasons.clear();
++
+ 	// popups
+ 	LEGOPTP.ppIsOn        = false;
+ 	LEGOPTP.ppOnline      = true;
+@@ -1689,6 +1693,7 @@
+ 			migrateBoolEntry(p_groupchat, "highlighting", "options.ui.muc.use-highlighting");
+ 			migrateStringList(p_groupchat, "highlightwords", "options.ui.muc.highlight-words");
+ 			migrateStringList(p_groupchat, "nickcolors", "options.ui.look.colors.muc.nick-colors");
++			migrateStringList(p_groupchat, "reasons", "options.muc.reasons");
+ 		}
+ 
+ 		// Bouncing dock icon (Mac OS X)
+Index: trunk/src/src.pri
+===================================================================
+--- trunk.orig/src/src.pri	2007-11-22 20:25:31.000000000 +0200
++++ trunk/src/src.pri	2007-11-22 20:25:56.000000000 +0200
+@@ -180,6 +180,7 @@
+ 	$$PWD/mucaffiliationsmodel.h \
+ 	$$PWD/mucaffiliationsproxymodel.h \
+ 	$$PWD/mucaffiliationsview.h \
++	$$PWD/mucreasonseditor.h \
+ 	$$PWD/rosteritemexchangetask.h \
+ 	$$PWD/mood.h \
+ 	$$PWD/moodcatalog.h \
+@@ -285,6 +286,7 @@
+ 	$$PWD/mucaffiliationsmodel.cpp \
+ 	$$PWD/mucaffiliationsproxymodel.cpp \
+ 	$$PWD/mucaffiliationsview.cpp \
++	$$PWD/mucreasonseditor.cpp \
+ 	$$PWD/rosteritemexchangetask.cpp \
+ 	$$PWD/mood.cpp \
+ 	$$PWD/moodcatalog.cpp \
+@@ -365,6 +367,7 @@
+ 	$$PWD/passphrase.ui \
+ 	$$PWD/sslcert.ui \
+ 	$$PWD/mucconfig.ui \
++	$$PWD/mucreasonseditor.ui \
+ 	$$PWD/xmlconsole.ui \
+ 	$$PWD/disco.ui \
+ 	$$PWD/tip.ui \

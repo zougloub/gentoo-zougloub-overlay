@@ -1,0 +1,19 @@
+Index: src/psiaccount.cpp
+===================================================================
+--- src/psiaccount.cpp	(revision 895)
++++ src/psiaccount.cpp	(working copy)
+@@ -2136,12 +2136,12 @@
+ 	//	m.setType("");
+ 
+ 	//We must not respond to recepit request automatically - KIS
+-	/*if(m.messageReceipt() == ReceiptRequest && !m.id().isEmpty()) {
++	if(m.messageReceipt() == ReceiptRequest && !m.id().isEmpty()) {
+ 		Message tm(m.from());
+ 		tm.setId(m.id());
+ 		tm.setMessageReceipt(ReceiptReceived);
+ 		dj_sendMessage(tm, false);
+-	}*/
++	}
+ 
+ 	MessageEvent *me = new MessageEvent(m, this);
+ 	me->setOriginLocal(false);
