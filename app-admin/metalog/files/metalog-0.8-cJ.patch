@@ -1,0 +1,2755 @@
+Only in metalog-0.8-cJ: .svn
+Only in metalog-0.8-cJ: Makefile
+Only in metalog-0.8-cJ: config.h
+Only in metalog-0.8-cJ: config.log
+Only in metalog-0.8-cJ: config.status
+Only in metalog-0.8-cJ/man: .svn
+Only in metalog-0.8-cJ/man: Makefile
+diff -U4 -r metalog-0.8/man/metalog.conf.5 metalog-0.8-cJ/man/metalog.conf.5
+--- metalog-0.8/man/metalog.conf.5	2007-01-06 05:01:38.000000000 -0500
++++ metalog-0.8-cJ/man/metalog.conf.5	2008-03-20 04:03:06.000000000 -0400
+@@ -46,8 +46,36 @@
+ kept. So you'll have x rotated files (log-date-string filename type), plus the
+ file named current.
+ .LP
+ .TP
++\fBtsformat\fR
++tsformat = "format". This is directly the string used by strftime() to generate
++a human-readable timestamp format.  For more information on the tokens that can
++be used in this parameter, see the manual page for strftime.  The default is
++"%F_%T".
++.LP
++.TP
++\fBtimestamp\fR
++timestamp = [yes|no].  Determines whether metalog prepends log file output with
++a timestamp (formatted by the "tsformat" directive).  The default is "yes".
++This parameter is useful when the software that produces syslog output insists
++on adding its own timestamps.
++.LP
++.TP
++
++\fBshowrepeat\fR
++showrepeat = "[0|1]". Show repetitions in the log files when same messages are
++logged.
++.LP
++.TP
++
++\fBpostrotate_cmd\fR
++postrotate_cmd = "/path/to/command". Command to launch when a log is rotated.
++Arguments are the date, the logger path, and the rotated logfile.
++.LP
++.TP
++
++
+ \fBfacility\fR
+ facility = "name". Only records a message if the application that issued it
+ uses syslog facility <facility>. Facility names are : "auth", "authpriv",
+ "cron", "daemon", "ftp", "kern", "lpr", "mail", "news", "security", "syslog",
+@@ -56,9 +84,9 @@
+ more than one facility. If <facility> is "*", it'll match all the facilities.
+ .LP
+ .TP
+ \fBbreak\fR
+-break = <value>. Default is 0.If set to 1 and a section is matched, perform
++break = <value>. Default is 0. If set to 1 and a section is matched, perform
+ action, but don't consider any more possible section matches below this one in
+ the config file. This is useful for creating a config where specific types of
+ log messages are matched and dispatched, while a "catch-all" section at the
+ bottom of the config file handles the default case.  Using break=0 would cause
+Only in metalog-0.8-cJ: metalog.lsm
+Only in metalog-0.8-cJ: metalog.spec
+Only in metalog-0.8-cJ/src: .deps
+Only in metalog-0.8-cJ/src: .svn
+Only in metalog-0.8-cJ/src: Makefile
+Only in metalog-0.8-cJ/src: bsd-getopt_long.o
+Only in metalog-0.8-cJ/src: fakesnprintf.o
+Only in metalog-0.8-cJ/src: metalog
+diff -U4 -r metalog-0.8/src/metalog.c metalog-0.8-cJ/src/metalog.c
+--- metalog-0.8/src/metalog.c	2007-05-06 18:42:29.000000000 -0400
++++ metalog-0.8-cJ/src/metalog.c	2008-03-20 04:03:06.000000000 -0400
+@@ -18,256 +18,279 @@
+ static int parseLine(char * const line, ConfigBlock **cur_block,
+                      const ConfigBlock * const default_block,
+                      const char ** const errptr, int * const erroffset,
+                      pcre * const re_newblock, pcre * const re_newstmt,
+-                     pcre * const re_comment, pcre * const re_null)
+-{
+-    int ovector[16];
+-    pcre *new_regex;
+-    const char *keyword;
+-    const char *value;
+-    int line_size;
+-    int stcount;
+-
+-    if ((line_size = (int) strlen(line)) <= 0) {
+-        return 0;
+-    }
+-    if (line[line_size - 1] == '\n') {
+-        if (line_size < 2) {
+-            return 0;
+-        }
+-        line[--line_size] = 0;
+-    }
+-    if (pcre_exec(re_null, NULL, line, line_size,
+-                  0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0 ||
+-        pcre_exec(re_comment, NULL, line, line_size,
+-                  0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0) {
+-        return 0;
+-    }
+-    if (pcre_exec(re_newblock, NULL, line, line_size,
+-                  0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0) {
+-        ConfigBlock *previous_block = *cur_block;
+-
+-        if ((*cur_block = malloc(sizeof **cur_block)) == NULL) {
+-            perror("Oh no! More memory!");
+-            return -3;
+-        }
+-        **cur_block = *default_block;
+-        if (config_blocks == NULL) {
+-            config_blocks = *cur_block;
+-        } else {
+-            previous_block->next_block = *cur_block;
+-        }
+-        return 0;
+-    }
+-    if ((stcount =
+-         pcre_exec(re_newstmt, NULL, line, line_size,
+-                   0, 0, ovector,
+-                   sizeof ovector / sizeof ovector[0])) >= 3) {
+-        pcre_get_substring(line, ovector, stcount, 1, &keyword);
+-        pcre_get_substring(line, ovector, stcount, 2, &value);
+-        if (strcasecmp(keyword, "minimum") == 0) {
+-            (*cur_block)->minimum = atoi(value);
+-        } else if (strcasecmp(keyword, "maximum") == 0) {
+-            (*cur_block)->maximum = atoi(value);
+-        } else if (strcasecmp(keyword, "facility") == 0) {
+-            int n = 0;
+-
+-            if (*value == '*' && value[1] == 0) {
+-                if ((*cur_block)->facilities != NULL) {
+-                    free((*cur_block)->facilities);
+-                }
+-                (*cur_block)->facilities = NULL;
+-                (*cur_block)->nb_facilities = 0;
+-                return 0;
+-            }
+-            while (facilitynames[n].c_name != NULL &&
+-                   strcasecmp(facilitynames[n].c_name, value) != 0) {
+-                n++;
+-            }
+-            if (facilitynames[n].c_name == NULL) {
+-                fprintf(stderr, "Unknown facility : [%s]\n", value);
+-                return -4;
+-            }
+-            (*cur_block)->facilities = realloc((*cur_block)->facilities,
+-                                               ((*cur_block)->nb_facilities + 1) *
+-                                               sizeof(*(*cur_block)->facilities));
+-            if ((*cur_block)->facilities == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            (*cur_block)->facilities[(*cur_block)->nb_facilities] =
+-                LOG_FAC(facilitynames[n].c_val);
+-            (*cur_block)->nb_facilities++;
+-        } else if (strcasecmp(keyword, "regex") == 0 ||
+-                   strcasecmp(keyword, "neg_regex") == 0) {
+-            const char *regex;
+-            RegexWithSign *new_regexeswithsign;
+-
+-            if ((regex = strdup(value)) == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            if ((new_regexeswithsign =
+-                 realloc((*cur_block)->regexeswithsign,
+-                         ((*cur_block)->nb_regexes + 1) *
+-                         sizeof *((*cur_block)->regexeswithsign))) == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            (*cur_block)->regexeswithsign = new_regexeswithsign;
+-            if ((new_regex = pcre_compile(regex, PCRE_CASELESS,
+-                                          errptr, erroffset, NULL))
+-                == NULL) {
+-                fprintf(stderr, "Invalid regex : [%s]\n", regex);
+-                return -5;
+-            }
+-            {
+-                RegexWithSign * const this_regex =
+-                    &((*cur_block)->regexeswithsign[(*cur_block)->nb_regexes]);
+-
+-                if (strcasecmp(keyword, "neg_regex") == 0) {
+-                    this_regex->sign = REGEX_SIGN_NEGATIVE;
+-                } else {
+-                    this_regex->sign = REGEX_SIGN_POSITIVE;
+-                }
+-                this_regex->regex.pcre = new_regex;
+-                this_regex->regex.pcre_extra =
+-                    pcre_study(new_regex, 0, errptr);
+-            }
+-            (*cur_block)->nb_regexes++;
+-        } else if (strcasecmp(keyword, "program_regex") == 0 ||
+-                   strcasecmp(keyword, "program_neg_regex") == 0) {
+-            const char *regex;
+-            RegexWithSign *new_regexeswithsign;
+-
+-            if ((regex = strdup(value)) == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            if ((new_regexeswithsign =
+-                 realloc((*cur_block)->program_regexeswithsign,
+-                         ((*cur_block)->program_nb_regexes + 1) *
+-                         sizeof *((*cur_block)->program_regexeswithsign)))
+-                == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            (*cur_block)->program_regexeswithsign = new_regexeswithsign;
+-            if ((new_regex = pcre_compile(regex, PCRE_CASELESS,
+-                                          errptr, erroffset, NULL))
+-                == NULL) {
+-                fprintf(stderr, "Invalid program regex : [%s]\n", regex);
+-                return -5;
+-            }
+-            {
+-                RegexWithSign * const this_regex =
+-                    &((*cur_block)->program_regexeswithsign
+-                      [(*cur_block)->program_nb_regexes]);
+-
+-                if (strcasecmp(keyword, "program_neg_regex") == 0) {
+-                    this_regex->sign = REGEX_SIGN_NEGATIVE;
+-                } else {
+-                    this_regex->sign = REGEX_SIGN_POSITIVE;
+-                }
+-                this_regex->regex.pcre = new_regex;
+-                this_regex->regex.pcre_extra =
+-                    pcre_study(new_regex, 0, errptr);
+-            }
+-            (*cur_block)->program_nb_regexes++;
+-        } else if (strcasecmp(keyword, "maxsize") == 0) {
+-            (*cur_block)->maxsize = (off_t) strtoull(value, NULL, 0);
+-            if ((*cur_block)->output != NULL) {
+-                (*cur_block)->output->maxsize = (*cur_block)->maxsize;
+-            }
+-        } else if (strcasecmp(keyword, "maxfiles") == 0) {
+-                (*cur_block)->maxfiles = atoi(value);
+-            if ((*cur_block)->output != NULL) {
+-                (*cur_block)->output->maxfiles = (*cur_block)->maxfiles;
+-            }
+-        } else if (strcasecmp(keyword, "maxtime") == 0) {
+-            (*cur_block)->maxtime = (time_t) strtoull(value, NULL, 0);
+-            if ((*cur_block)->output != NULL) {
+-                (*cur_block)->output->maxtime = (*cur_block)->maxtime;
+-            }
+-        } else if (strcasecmp(keyword, "showrepeats") == 0) {
+-            (*cur_block)->showrepeats = atoi(value);
+-            if ((*cur_block)->output != NULL) {
+-                (*cur_block)->output->showrepeats = (*cur_block)->showrepeats;
+-            }
+-        } else if (strcasecmp(keyword, "logdir") == 0) {
+-            char *logdir;
+-            Output *outputs_scan = outputs;
+-            Output *previous_scan = NULL;
+-            Output *new_output;
+-
+-            while (outputs_scan != NULL) {
+-                if (outputs_scan->directory != NULL &&
+-                    strcmp(outputs_scan->directory, value) == 0) {
+-                    (*cur_block)->output = outputs_scan;
+-                    goto duplicate_output;
+-                }
+-                previous_scan = outputs_scan;
+-                outputs_scan = outputs_scan->next_output;
+-            }
+-            if ((new_output = malloc(sizeof *new_output)) == NULL ||
+-                (logdir = strdup(value)) == NULL) {
+-                if (new_output != NULL) {
+-                    free(new_output);
+-                }
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-            new_output->directory = logdir;
+-            new_output->fp = NULL;
+-            new_output->size = (off_t) 0;
+-            new_output->maxsize = (*cur_block)->maxsize;
+-            new_output->maxfiles = (*cur_block)->maxfiles;
+-            new_output->maxtime = (*cur_block)->maxtime;
+-            new_output->showrepeats = (*cur_block)->showrepeats;
+-            new_output->dt.previous_prg = NULL;
+-            new_output->dt.previous_info = NULL;
+-            new_output->dt.sizeof_previous_prg = (size_t) 0U;
+-            new_output->dt.sizeof_previous_info = (size_t) 0U;
+-            new_output->dt.previous_sizeof_prg = (size_t) 0U;
+-            new_output->dt.previous_sizeof_info = (size_t) 0U;
+-            new_output->dt.same_counter = 0U;
+-            new_output->next_output = NULL;
+-            if (previous_scan != NULL) {
+-                previous_scan->next_output = new_output;
+-            } else {
+-                outputs = new_output;
+-            }
+-            (*cur_block)->output = new_output;
+-            duplicate_output:
+-            (void) 0;
+-        } else if (strcasecmp(keyword, "command") == 0) {
+-            if (((*cur_block)->command = strdup(value)) == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-        } else if (strcasecmp(keyword, "program") == 0) {
+-            if (((*cur_block)->program = strdup(value)) == NULL) {
+-                perror("Oh no! More memory!");
+-                return -3;
+-            }
+-        } else if (strcasecmp(keyword, "postrotate_cmd") == 0) {
+-            if (((*cur_block)->postrotate_cmd = strdup(value)) == NULL) {
+-               perror("Oh no! More memory!");
+-               return -3;
+-            }
+-            if ((*cur_block)->output != NULL) {
+-                (*cur_block)->output->postrotate_cmd = (*cur_block)->postrotate_cmd;
+-            }
+-        } else if (strcasecmp(keyword, "break") == 0) {
+-            (*cur_block)->brk = atoi(value);
+-        }
+-    }
+-    return 0;
++                     pcre * const re_comment, pcre * const re_null) {
++	int ovector[16];
++	pcre *new_regex;
++	const char *keyword;
++	const char *value;
++	int line_size;
++	int stcount;
++
++	if ((line_size = (int) strlen(line)) <= 0) {
++		return 0;
++	}
++	if (line[line_size - 1] == '\n') {
++		if (line_size < 2) {
++			return 0;
++		}
++		line[--line_size] = 0;
++	}
++	if (pcre_exec(re_null, NULL, line, line_size,
++				0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0 ||
++		pcre_exec(re_comment, NULL, line, line_size,
++				0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0) {
++		return 0;
++	}
++	if (pcre_exec(re_newblock, NULL, line, line_size,
++				0, 0, ovector, sizeof ovector / sizeof ovector[0]) >= 0) {
++		ConfigBlock *previous_block = *cur_block;
++
++		if ((*cur_block = malloc(sizeof **cur_block)) == NULL) {
++			perror("Oh no! More memory!");
++			return -3;
++		}
++		**cur_block = *default_block;
++		if (config_blocks == NULL) {
++			config_blocks = *cur_block;
++		} else {
++			previous_block->next_block = *cur_block;
++		}
++		return 0;
++	}
++	if ((stcount =
++		pcre_exec(re_newstmt, NULL, line, line_size,
++				0, 0, ovector,
++				sizeof ovector / sizeof ovector[0])) >= 3) {
++		pcre_get_substring(line, ovector, stcount, 1, &keyword);
++		pcre_get_substring(line, ovector, stcount, 2, &value);
++		if (strcasecmp(keyword, "minimum") == 0) {
++			(*cur_block)->minimum = atoi(value);
++		} else if (strcasecmp(keyword, "maximum") == 0) {
++			(*cur_block)->maximum = atoi(value);
++		} else if (strcasecmp(keyword, "facility") == 0) {
++			int n = 0;
++
++			if (*value == '*' && value[1] == 0) {
++				if ((*cur_block)->facilities != NULL) {
++					free((*cur_block)->facilities);
++				}
++				(*cur_block)->facilities = NULL;
++				(*cur_block)->nb_facilities = 0;
++				return 0;
++			}
++			while (facilitynames[n].c_name != NULL &&
++				strcasecmp(facilitynames[n].c_name, value) != 0) {
++				n++;
++			}
++			if (facilitynames[n].c_name == NULL) {
++				fprintf(stderr, "Unknown facility : [%s]\n", value);
++				return -4;
++			}
++			(*cur_block)->facilities = realloc((*cur_block)->facilities,
++											((*cur_block)->nb_facilities + 1) *
++											sizeof(*(*cur_block)->facilities));
++			if ((*cur_block)->facilities == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			(*cur_block)->facilities[(*cur_block)->nb_facilities] =
++				LOG_FAC(facilitynames[n].c_val);
++			(*cur_block)->nb_facilities++;
++		} else if (strcasecmp(keyword, "regex") == 0 ||
++				strcasecmp(keyword, "neg_regex") == 0) {
++			const char *regex;
++			RegexWithSign *new_regexeswithsign;
++
++			if ((regex = strdup(value)) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			if ((new_regexeswithsign =
++				realloc((*cur_block)->regexeswithsign,
++						((*cur_block)->nb_regexes + 1) *
++						sizeof *((*cur_block)->regexeswithsign))) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			(*cur_block)->regexeswithsign = new_regexeswithsign;
++			if ((new_regex = pcre_compile(regex, PCRE_CASELESS,
++										errptr, erroffset, NULL))
++				== NULL) {
++				fprintf(stderr, "Invalid regex : [%s]\n", regex);
++				return -5;
++			}
++			{
++				RegexWithSign * const this_regex =
++					&((*cur_block)->regexeswithsign[(*cur_block)->nb_regexes]);
++
++				if (strcasecmp(keyword, "neg_regex") == 0) {
++					this_regex->sign = REGEX_SIGN_NEGATIVE;
++				} else {
++					this_regex->sign = REGEX_SIGN_POSITIVE;
++				}
++				this_regex->regex.pcre = new_regex;
++				this_regex->regex.pcre_extra =
++					pcre_study(new_regex, 0, errptr);
++			}
++			(*cur_block)->nb_regexes++;
++		} else if (strcasecmp(keyword, "program_regex") == 0 ||
++				strcasecmp(keyword, "program_neg_regex") == 0) {
++			const char *regex;
++			RegexWithSign *new_regexeswithsign;
++
++			if ((regex = strdup(value)) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			if ((new_regexeswithsign =
++				realloc((*cur_block)->program_regexeswithsign,
++						((*cur_block)->program_nb_regexes + 1) *
++						sizeof *((*cur_block)->program_regexeswithsign)))
++				== NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			(*cur_block)->program_regexeswithsign = new_regexeswithsign;
++			if ((new_regex = pcre_compile(regex, PCRE_CASELESS,
++										errptr, erroffset, NULL))
++				== NULL) {
++				fprintf(stderr, "Invalid program regex : [%s]\n", regex);
++				return -5;
++			}
++			{
++				RegexWithSign * const this_regex =
++					&((*cur_block)->program_regexeswithsign
++					[(*cur_block)->program_nb_regexes]);
++
++				if (strcasecmp(keyword, "program_neg_regex") == 0) {
++					this_regex->sign = REGEX_SIGN_NEGATIVE;
++				} else {
++					this_regex->sign = REGEX_SIGN_POSITIVE;
++				}
++				this_regex->regex.pcre = new_regex;
++				this_regex->regex.pcre_extra =
++					pcre_study(new_regex, 0, errptr);
++			}
++			(*cur_block)->program_nb_regexes++;
++		} else if (strcasecmp(keyword, "maxsize") == 0) {
++			(*cur_block)->maxsize = (off_t) strtoull(value, NULL, 0);
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->maxsize = (*cur_block)->maxsize;
++			}
++		} else if (strcasecmp(keyword, "maxfiles") == 0) {
++			(*cur_block)->maxfiles = atoi(value);
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->maxfiles = (*cur_block)->maxfiles;
++			}
++		} else if (strcasecmp(keyword, "maxtime") == 0) {
++			(*cur_block)->maxtime = (time_t) strtoull(value, NULL, 0);
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->maxtime = (*cur_block)->maxtime;
++			}
++		} else if (strcasecmp(keyword, "showrepeats") == 0) {
++			(*cur_block)->showrepeats = atoi(value);
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->showrepeats = (*cur_block)->showrepeats;
++			}
++		} else if (strcasecmp(keyword, "tsformat") == 0) {
++			if (((*cur_block)->tsformat = strdup(value)) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			if ((*cur_block)->output != NULL) {
++				if (((*cur_block)->output->tsformat = strdup((*cur_block)->tsformat)) == NULL) {
++					perror("Oh no! More memory!");
++					return -3;
++			}
++			}
++		} else if (strcasecmp(keyword, "timestamp") == 0) {
++			if (strcasecmp(value, "yes") != 0 && strcasecmp(value, "no") != 0) {
++				fprintf(stderr, "Your timestamp value, %s, is unrecognized.\nThe expected value for the 'timestamp' attribute is \"yes\" or \"no\".  Assuming \"yes\".\n", value);
++			}
++		(*cur_block)->timestamp = (strcasecmp(value, "no") == 0 ? 0 : 1);
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->timestamp = (*cur_block)->timestamp;
++			}
++		} else if (strcasecmp(keyword, "logdir") == 0) {
++			char *logdir;
++			Output *outputs_scan = outputs;
++			Output *previous_scan = NULL;
++			Output *new_output;
++
++			while (outputs_scan != NULL) {
++				if (outputs_scan->directory != NULL &&
++					strcmp(outputs_scan->directory, value) == 0) {
++					(*cur_block)->output = outputs_scan;
++					goto duplicate_output;
++				}
++				previous_scan = outputs_scan;
++				outputs_scan = outputs_scan->next_output;
++			}
++			if ((new_output = malloc(sizeof *new_output)) == NULL ||
++				(logdir = strdup(value)) == NULL) {
++				if (new_output != NULL) {
++					free(new_output);
++				}
++				perror("Oh no! More memory!");
++				return -3;
++			}
++			new_output->directory = logdir;
++			new_output->fp = NULL;
++			new_output->size = (off_t) 0;
++			new_output->maxsize = (*cur_block)->maxsize;
++			new_output->maxfiles = (*cur_block)->maxfiles;
++			new_output->maxtime = (*cur_block)->maxtime;
++			new_output->tsformat = (*cur_block)->tsformat;
++			new_output->timestamp = (*cur_block)->timestamp;
++			new_output->showrepeats = (*cur_block)->showrepeats;
++			new_output->dt.previous_prg = NULL;
++			new_output->dt.previous_info = NULL;
++			new_output->dt.sizeof_previous_prg = (size_t) 0U;
++			new_output->dt.sizeof_previous_info = (size_t) 0U;
++			new_output->dt.previous_sizeof_prg = (size_t) 0U;
++			new_output->dt.previous_sizeof_info = (size_t) 0U;
++			new_output->dt.same_counter = 0U;
++			new_output->next_output = NULL;
++			if (previous_scan != NULL) {
++				previous_scan->next_output = new_output;
++			} else {
++				outputs = new_output;
++			}
++			(*cur_block)->output = new_output;
++			duplicate_output:
++			(void) 0;
++		} else if (strcasecmp(keyword, "command") == 0) {
++			if (((*cur_block)->command = strdup(value)) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++		} else if (strcasecmp(keyword, "program") == 0) {
++			if (((*cur_block)->program = strdup(value)) == NULL) {
++				perror("Oh no! More memory!");
++				return -3;
++			}
++		} else if (strcasecmp(keyword, "postrotate_cmd") == 0) {
++			if (((*cur_block)->postrotate_cmd = strdup(value)) == NULL) {
++			perror("Oh no! More memory!");
++			return -3;
++			}
++			if ((*cur_block)->output != NULL) {
++				(*cur_block)->output->postrotate_cmd = (*cur_block)->postrotate_cmd;
++			}
++		} else if (strcasecmp(keyword, "break") == 0) {
++			(*cur_block)->brk = atoi(value);
++		}
++	else {
++			fprintf(stderr, "Unknown keyword '%s'!\n", keyword);
++			exit(15);
++	}
++	}
++	return 0;
+ }
+ 
+-static int configParser(const char * const file)
+-{
++static int configParser(const char * const file) {
+     char line[LINE_MAX];
+     FILE *fp;
+     const char *errptr;
+     pcre *re_newblock;
+@@ -285,8 +308,10 @@
+             0,                         /* nb_regexes */
+             (off_t) DEFAULT_MAXSIZE,   /* maxsize */
+             DEFAULT_MAXFILES,          /* maxfiles */
+             (time_t) DEFAULT_MAXTIME,  /* maxtime */
++            NULL,                      /* tsformat */
++            1,                         /* timestamp */
+             NULL,                      /* output */
+             NULL,                      /* command */
+             NULL,                      /* program */
+             0,                         /* break flag */
+@@ -338,42 +363,41 @@
+ 
+     return retcode;
+ }
+ 
+-static void clearargs(int argc, char **argv)
+-{
++static void clearargs(int argc, char **argv) {
+ #ifndef NO_PROCNAME_CHANGE
+ # if defined(__linux__) && !defined(HAVE_SETPROCTITLE)
+-    int i;
+-
+-    for (i = 0; environ[i] != NULL; i++);
+-    argv0 = argv;
+-    if (i > 0) {
+-        argv_lth = environ[i-1] + strlen(environ[i-1]) - argv0[0];
+-    } else {
+-        argv_lth = argv0[argc-1] + strlen(argv0[argc-1]) - argv0[0];
+-    }
+-    if (environ != NULL) {
+-        char **new_environ;
+-        unsigned int env_nb = 0U;
++	int i;
+ 
+-        while (environ[env_nb] != NULL) {
+-            env_nb++;
+-        }
+-        if ((new_environ = malloc((1U + env_nb) * sizeof (char *))) == NULL) {
+-            abort();
+-        }
+-        new_environ[env_nb] = NULL;
+-        while (env_nb > 0U) {
+-            env_nb--;
+-            /* Can any bad thing happen if strdup() ever fails? */
+-            new_environ[env_nb] = strdup(environ[env_nb]);
+-        }
+-        environ = new_environ;
+-    }
++	for (i = 0; environ[i] != NULL; i++);
++	argv0 = argv;
++	if (i > 0) {
++		argv_lth = environ[i-1] + strlen(environ[i-1]) - argv0[0];
++	} else {
++		argv_lth = argv0[argc-1] + strlen(argv0[argc-1]) - argv0[0];
++	}
++	if (environ != NULL) {
++		char **new_environ;
++		unsigned int env_nb = 0U;
++
++		while (environ[env_nb] != NULL) {
++			env_nb++;
++		}
++		if ((new_environ = malloc((1U + env_nb) * sizeof (char *))) == NULL) {
++			abort();
++		}
++		new_environ[env_nb] = NULL;
++		while (env_nb > 0U) {
++			env_nb--;
++			/* Can any bad thing happen if strdup() ever fails? */
++			new_environ[env_nb] = strdup(environ[env_nb]);
++		}
++		environ = new_environ;
++	}
+ # else
+-    (void) argc;
+-    (void) argv;
++	(void) argc;
++	(void) argv;
+ # endif
+ #endif
+ }
+ 
+@@ -500,996 +524,1072 @@
+ 
+     return 0;
+ }
+ 
+-static int spawnCommand(const char * const command, const char * const date,
+-                        const char * const prg, const char * const info)
+-{
+-    pid_t pid;
+-
+-    if (spawn_recursion) return 1;
+-    spawn_recursion++;
+-
+-    pid = fork();
+-    if (pid == 0) {
+-        execl(command, command, date, prg, info, (char *) NULL);
+-        _exit(127);
+-    }
+-
+-    if (verbose)
+-        doLog("Forked command \"%s \"%s\" \"%s\" \"%s\" [%u].",
+-              command, date, prg, info, (unsigned) pid);
+-    spawn_recursion--;
+-    return 0;
++static int spawnCommand(const char * const command, const time_t * date,
++                        const char * const prg, const char * const info) {
++	pid_t pid;
++
++	if (spawn_recursion) return 1;
++	spawn_recursion++;
++
++	pid = fork();
++	if (pid == 0) {
++		execl(command, command, date, prg, info, (char *) NULL);
++		_exit(127);
++	}
++
++	if (verbose)
++		doLog("Forked command \"%s \"%s\" \"%s\" \"%s\" [%u].",
++			command, date, prg, info, (unsigned) pid);
++	spawn_recursion--;
++	return 0;
+ }
+ 
+ static int parseLogLine(const LogLineType loglinetype, char *line,
+-                        int * const logcode, char ** const date,
+-                        const char ** const prg, char ** const info)
+-{
++                        int * const logcode, time_t *now,
++                        const char ** const prg, char ** const info) {
+ #ifndef HAVE_KLOGCTL
+-    if (loglinetype != LOGLINETYPE_KLOG) {
++	if (loglinetype != LOGLINETYPE_KLOG) {
+ #endif
+-        if (*line != '<') {
+-            return -1;
+-        }
+-        line++;
+-        if ((*logcode = atoi(line)) <= 0) {
+-            return -1;
+-        }
+-        while (*line != '>') {
+-            if (*line == 0) {
+-                return -1;
+-            }
+-            line++;
+-        }
+-        line++;
++		if (*line != '<') {
++			return -1;
++		}
++		line++;
++		if ((*logcode = atoi(line)) <= 0) {
++			return -1;
++		}
++		while (*line != '>') {
++			if (*line == 0) {
++				return -1;
++			}
++			line++;
++		}
++		line++;
+ #ifndef HAVE_KLOGCTL
+-    } else {
+-        *logcode = 0;
+-    }
++	} else {
++		*logcode = 0;
++	}
+ #endif
+ 
+-    if (loglinetype == LOGLINETYPE_KLOG) {
+-        const time_t now = time(NULL);
+-        struct tm *tm;
+-        static char datebuf[100];
+-
+-        *logcode |= LOG_KERN;
+-        *prg = CF_PROGNAME_KERNEL;
+-        *info = line;
+-        if ((tm = localtime(&now)) == NULL) {
+-            *datebuf = 0;
+-        } else {
+-            strftime(datebuf, sizeof datebuf, "%b %e %T", tm);
+-        }
+-        *date = datebuf;
++	if (loglinetype == LOGLINETYPE_KLOG) {
++		*now = time(NULL);
++		*logcode |= LOG_KERN;
++		*prg = CF_PROGNAME_KERNEL;
++		*info = line;
++
++		return 0;
++	}
++	while (*line != ':') {
++		if (*line == 0) {
++			return -1;
++		}
++		line++;
++	}
++	line++;
++	while (isspace(*line) == 0) {
++		if (*line == 0) {
++			return -1;
++		}
++		line++;
++	}
++	*line++ = 0;
++	*prg = line;
++	while (*line != '[' && *line != ':') {
++		if (*line == 0) {
++			return -1;
++		}
++		line++;
++	}
++	if (*line == '[') {
++		*line++ = 0;
++		while (*line != ']') {
++			if (*line == 0) {
++				return -1;
++			}
++			line++;
++		}
++		line++;
++		while (*line != ':') {
++			if (*line == 0) {
++				return -1;
++			}
++			line++;
++		}
++	} else {
++		*line = 0;
++	}
++	line++;
++	while (isspace(*line) != 0) {
++		if (*line == 0) {
++			return -1;
++		}
++		line++;
++	}
++	*info = line;
++
++	return 0;
++}
++
++static int rotateLogFiles(const char * const directory, const int maxfiles) {
++	char path[MAXPATHLEN];
++	char old_name[MAXPATHLEN];
++	const char *name;
++	DIR *dir;
++	struct dirent *dirent;
++	int foundlogs;
++	int year, mon, mday, hour, min, sec;
++	int older_year, older_mon = INT_MAX, older_mday = INT_MAX,
++		older_hour = INT_MAX, older_min = INT_MAX, older_sec = INT_MAX;
++
++	rescan:
++	foundlogs = 0;
++	*old_name = 0;
++	older_year = INT_MAX;
++	if ((dir = opendir(directory)) == NULL) {
++		fprintf(stderr, "Unable to rotate [%s]\n", directory);
++		return -1;
++	}
++	while ((dirent = readdir(dir)) != NULL) {
++		name = dirent->d_name;
++		if (strncmp(name, OUTPUT_DIR_LOGFILES_PREFIX,
++					sizeof OUTPUT_DIR_LOGFILES_PREFIX - 1U) == 0) {
++			if (sscanf(name, OUTPUT_DIR_LOGFILES_PREFIX "%*d-%*d-%*d_%*d:%*d:%*d~%d-%d-%d_%d:%d:%d.log",
++					&year, &mon, &mday, &hour, &min, &sec) != 6) {
++				continue;
++			}
++			foundlogs++;
++			if (year < older_year || (year == older_year &&
++			(mon  < older_mon  || (mon  == older_mon  &&
++			(mday < older_mday || (mday == older_mday &&
++			(hour < older_hour || (hour == older_hour &&
++			(min  < older_min  || (min  == older_min  &&
++			(sec  < older_sec))))))))))) {   /* yeah! */
++				older_year = year;
++				older_mon = mon;
++				older_mday = mday;
++				older_hour = hour;
++				older_min = min;
++				older_sec = sec;
++				strncpy(old_name, name, sizeof old_name);
++				old_name[sizeof old_name - 1U] = 0;
++			}
++		}
++	}
++	closedir(dir);
++	if (foundlogs >= maxfiles) {
++		if (*old_name == 0) {
++			return -3;
++		}
++		if (snprintf(path, sizeof path, "%s/%s", directory, old_name) < 0) {
++			fprintf(stderr, "Path to long to unlink [%s/%s]\n",
++					directory, old_name);
++			return -4;
++		}
++		if (unlink(path) < 0) {
++			return -2;
++		}
++		foundlogs--;
++		if (foundlogs >= maxfiles) {
++			goto rescan;
++		}
++	}
+ 
+-        return 0;
+-    }
+-    *date = line;
+-    while (*line != ':') {
+-        if (*line == 0) {
+-            return -1;
+-        }
+-        line++;
+-    }
+-    line++;
+-    while (isspace(*line) == 0) {
+-        if (*line == 0) {
+-            return -1;
+-        }
+-        line++;
+-    }
+-    *line++ = 0;
+-    *prg = line;
+-    while (*line != '[' && *line != ':') {
+-        if (*line == 0) {
+-            return -1;
+-        }
+-        line++;
+-    }
+-    if (*line == '[') {
+-        *line++ = 0;
+-        while (*line != ']') {
+-            if (*line == 0) {
+-                return -1;
+-            }
+-            line++;
+-        }
+-        line++;
+-        while (*line != ':') {
+-            if (*line == 0) {
+-                return -1;
+-            }
+-            line++;
+-        }
+-    } else {
+-        *line = 0;
+-    }
+-    line++;
+-    while (isspace(*line) != 0) {
+-        if (*line == 0) {
+-            return -1;
+-        }
+-        line++;
+-    }
+-    *info = line;
+-
+-    return 0;
+-}
+-
+-static int rotateLogFiles(const char * const directory, const int maxfiles)
+-{
+-    char path[MAXPATHLEN];
+-    char old_name[MAXPATHLEN];
+-    const char *name;
+-    DIR *dir;
+-    struct dirent *dirent;
+-    int foundlogs;
+-    int year, mon, mday, hour, min, sec;
+-    int older_year, older_mon = INT_MAX, older_mday = INT_MAX,
+-        older_hour = INT_MAX, older_min = INT_MAX, older_sec = INT_MAX;
+-
+-    rescan:
+-    foundlogs = 0;
+-    *old_name = 0;
+-    older_year = INT_MAX;
+-    if ((dir = opendir(directory)) == NULL) {
+-        fprintf(stderr, "Unable to rotate [%s]\n", directory);
+-        return -1;
+-    }
+-    while ((dirent = readdir(dir)) != NULL) {
+-        name = dirent->d_name;
+-        if (strncmp(name, OUTPUT_DIR_LOGFILES_PREFIX,
+-                    sizeof OUTPUT_DIR_LOGFILES_PREFIX - 1U) == 0) {
+-            if (sscanf(name, OUTPUT_DIR_LOGFILES_PREFIX "%d-%d-%d-%d:%d:%d",
+-                       &year, &mon, &mday, &hour, &min, &sec) != 6) {
+-                continue;
+-            }
+-            foundlogs++;
+-            if (year < older_year || (year == older_year &&
+-               (mon  < older_mon  || (mon  == older_mon  &&
+-               (mday < older_mday || (mday == older_mday &&
+-               (hour < older_hour || (hour == older_hour &&
+-               (min  < older_min  || (min  == older_min  &&
+-               (sec  < older_sec))))))))))) {   /* yeah! */
+-                older_year = year;
+-                older_mon = mon;
+-                older_mday = mday;
+-                older_hour = hour;
+-                older_min = min;
+-                older_sec = sec;
+-                strncpy(old_name, name, sizeof old_name);
+-                old_name[sizeof old_name - 1U] = 0;
+-            }
+-        }
+-    }
+-    closedir(dir);
+-    if (foundlogs >= maxfiles) {
+-        if (*old_name == 0) {
+-            return -3;
+-        }
+-        if (snprintf(path, sizeof path, "%s/%s", directory, old_name) < 0) {
+-            fprintf(stderr, "Path to long to unlink [%s/%s]\n",
+-                    directory, old_name);
+-            return -4;
+-        }
+-        if (unlink(path) < 0) {
+-            return -2;
+-        }
+-        foundlogs--;
+-        if (foundlogs >= maxfiles) {
+-            goto rescan;
+-        }
+-    }
+-
+-    return 0;
++	return 0;
+ }
+ 
+ static int writeLogLine(Output * const output, const char * const date,
+-                        const char * const prg, const char * const info)
+-{
+-    size_t sizeof_prg;
+-    size_t sizeof_info;
+-    time_t now;
+-
+-    if (output == NULL || output->directory == NULL ||
+-        (sizeof_prg = strlen(prg)) <= (size_t) 0U ||
+-        (sizeof_info = strlen(info)) <= (size_t) 0U) {
+-        return 0;
+-    }
+-    if (sizeof_info > MAX_SIGNIFICANT_LENGTH) {
+-        sizeof_info = MAX_SIGNIFICANT_LENGTH;
+-    }
+-    if (sizeof_prg > MAX_SIGNIFICANT_LENGTH) {
+-        sizeof_prg = MAX_SIGNIFICANT_LENGTH;
+-    }
+-
+-    if (output->showrepeats == 0 &&
+-        sizeof_info == output->dt.previous_sizeof_info &&
+-        sizeof_prg == output->dt.previous_sizeof_prg &&
+-        memcmp(output->dt.previous_info, info, sizeof_info) == 0 &&
+-        memcmp(output->dt.previous_prg, prg, sizeof_prg) == 0) {
+-        if (output->dt.same_counter < UINT_MAX) {
+-            output->dt.same_counter++;
+-        }
+-        return 0;
+-    }
++                        const char * const prg, const char * const info) {
++	size_t sizeof_prg;
++	size_t sizeof_info;
++	time_t now;
++
++	if (output == NULL || output->directory == NULL ||
++		(sizeof_prg = strlen(prg)) <= (size_t) 0U ||
++		(sizeof_info = strlen(info)) <= (size_t) 0U) {
++		return 0;
++	}
++	if (sizeof_info > MAX_SIGNIFICANT_LENGTH) {
++		sizeof_info = MAX_SIGNIFICANT_LENGTH;
++	}
++	if (sizeof_prg > MAX_SIGNIFICANT_LENGTH) {
++		sizeof_prg = MAX_SIGNIFICANT_LENGTH;
++	}
++
++	if (output->showrepeats == 0 &&
++		sizeof_info == output->dt.previous_sizeof_info &&
++		sizeof_prg == output->dt.previous_sizeof_prg &&
++		memcmp(output->dt.previous_info, info, sizeof_info) == 0 &&
++		memcmp(output->dt.previous_prg, prg, sizeof_prg) == 0) {
++		if (output->dt.same_counter < UINT_MAX) {
++			output->dt.same_counter++;
++		}
++		return 0;
++	}
++
++	if (sizeof_info > output->dt.sizeof_previous_info) {
++		char *pp = output->dt.previous_info;
++
++		if ((pp = realloc(output->dt.previous_info, sizeof_info)) != NULL) {
++			output->dt.previous_info = pp;
++			memcpy(output->dt.previous_info, info, sizeof_info);
++			output->dt.sizeof_previous_info = sizeof_info;
++		}
++	} else {
++		memcpy(output->dt.previous_info, info, sizeof_info);
++		output->dt.previous_sizeof_info = sizeof_info;
++	}
++	if (sizeof_prg > output->dt.sizeof_previous_prg) {
++		char *pp = output->dt.previous_prg;
++
++		if ((pp = realloc(output->dt.previous_prg, sizeof_prg)) != NULL) {
++			output->dt.previous_prg = pp;
++			memcpy(output->dt.previous_prg, prg, sizeof_prg);
++			output->dt.sizeof_previous_prg = sizeof_prg;
++		}
++	} else {
++		memcpy(output->dt.previous_prg, prg, sizeof_prg);
++		output->dt.previous_sizeof_prg = sizeof_prg;
++	}
++	now = time(NULL);
++	if (output->fp == NULL) {
++		struct stat st;
++		FILE *fp;
++		FILE *fp_ts;
++		time_t creatime;
++		char path[MAXPATHLEN];
++
++		testdir:
++		if (stat(output->directory, &st) < 0) {
++			if (mkdir(output->directory, OUTPUT_DIR_PERMS) < 0) {
++				fprintf(stderr, "Can't create [%s]\n", output->directory);
++				return -1;
++			}
++		} else if (!S_ISDIR(st.st_mode)) {
++			if (unlink(output->directory) < 0) {
++				fprintf(stderr, "Can't unlink [%s]\n", output->directory);
++				return -1;
++			}
++			goto testdir;
++		}
++		if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_CURRENT,
++					output->directory) < 0) {
++			fprintf(stderr, "Path name too long for current in [%s]\n",
++					output->directory);
++			return -2;
++		}
++		if ((fp = fopen(path, "a")) == NULL) {
++			fprintf(stderr, "Unable to access [%s]\n", path);
++			return -3;
++		}
++		if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_TIMESTAMP,
++					output->directory) < 0) {
++			fprintf(stderr, "Path name too long for timestamp in [%s]\n",
++					output->directory);
++			fclose(fp);
++			return -2;
++		}
++		if ((fp_ts = fopen(path, "r")) == NULL) {
++			recreate_ts:
++			creatime = time(NULL);
++			if ((fp_ts = fopen(path, "w")) == NULL) {
++				fprintf(stderr, "Unable to write the timestamp [%s]\n", path);
++				fclose(fp);
++				return -3;
++			}
++			fprintf(fp_ts, "%llu\n", (unsigned long long) creatime);
++		} else {
++			unsigned long long creatime_;
++
++			if (fscanf(fp_ts, "%llu", &creatime_) <= 0) {
++				fclose(fp_ts);
++				goto recreate_ts;
++			}
++			creatime = (time_t) creatime_;
++		}
++		if (fclose(fp_ts) != 0) {
++			fprintf(stderr, "Unable to close [%s]\n", path);
++			return -3;
++		}
++		output->creatime = creatime;
++		if (output->maxtime)
++			output->creatime -= (creatime % output->maxtime);
++		output->size = (off_t) ftell(fp);
++		output->fp = fp;
++	}
++	if ((output->maxsize != 0) && (output->maxtime != 0)) {
++		if (output->size >= output->maxsize ||
++			now > (output->creatime + output->maxtime)) {
++			int pos = 0;
++			int ret;
++			char path[MAXPATHLEN];
++			char newpath[MAXPATHLEN];
++
++
++
++			if (output->fp == NULL) {
++				fprintf(stderr, "Internal inconsistency line [%d]\n", __LINE__);
++				return -6;
++			}
++
++			ret = snprintf(newpath, sizeof newpath, "%s/" OUTPUT_DIR_LOGFILES_PREFIX,
++				output->directory);
++			if (ret < 0) {
++				fprintf(stderr, "Path name too long for new path in [%s]\n",
++					output->directory);
++				return -2;
++			}
++			pos += ret;
++
++			/*
++				Creation time
++			*/
++			{
++				struct tm *time_gm_crea;
++				// Get creation time from timestamp, more precise than output->creatime
++				// Comment whole block and decomment other if you don't want to use it.
++				{
++					time_t creatime;
++					char path[MAXPATHLEN];
++					FILE *fp;
++					FILE *fp_ts;
++					if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_CURRENT,
++					output->directory) < 0) {
++						fprintf(stderr, "Path name too long for current in [%s]\n",
++						output->directory);
++						return -2;
++					}
++					if ((fp = fopen(path, "a")) == NULL) {
++						fprintf(stderr, "Unable to access [%s]\n", path);
++						return -3;
++					}
++					if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_TIMESTAMP,
++							output->directory) < 0) {
++						fprintf(stderr, "Path name too long for timestamp in [%s]\n",
++							output->directory);
++						fclose(fp);
++						return -2;
++					}
++					unsigned long long creatime_;
++					fp_ts = fopen(path, "r");
++					if (fscanf(fp_ts, "%llu", &creatime_) <= 0) {
++						fclose(fp_ts);
++					}
++					creatime = (time_t) creatime_;
++					
++					if (fclose(fp_ts) != 0) {
++						fprintf(stderr, "Unable to close [%s]\n", path);
++						return -3;
++					}
++					if ((time_gm_crea = gmtime(&creatime)) == NULL) {
++						fprintf(stderr, "Unable to find the creation date\n");
++						return -4;
++					}
++				}
++				
++				// Get creation time from output
++				/*if ((time_gm_crea = gmtime(&(output->creatime))) == NULL) {
++					fprintf(stderr, "Unable to find the creation date\n");
++					return -4;
++				}*/
++
++				//printf("Creation time : %s\n", asctime(time_gm_crea));
++
++				ret = strftime(newpath + pos, sizeof newpath - pos,
++							"%Y-%m-%d_%H:%M:%S", time_gm_crea);
++				if (ret == 0)
++				{
++					fprintf(stderr, "Path name too long for new path in [%s]\n",
++						output->directory);
++					return -2;
++				}
++				pos += ret;
++			}
++
++			/*
++				Now's time
++			*/
++			{
++				struct tm *time_gm;
++
++				if ((time_gm = gmtime(&now)) == NULL) {
++					fprintf(stderr, "Unable to find the current date\n");
++					return -4;
++				}
++	
++				//printf("Now time : %s\n", asctime(time_gm));
++	
++				ret = strftime(newpath + pos, sizeof newpath - pos,
++							"~%Y-%m-%d_%H:%M:%S", time_gm);
++				if (ret == 0)
++				{
++					fprintf(stderr, "Path name too long for new path in [%s]\n",
++						output->directory);
++					return -2;
++				}
++				pos += ret;
++			}
++
++			ret = snprintf(newpath+pos, sizeof newpath - pos, ".log");
++			pos += 4;
++			if (ret == 0) {
++				fprintf(stderr, "Backup file, path name too long : %s\n", newpath);
++				return -2;
++			}
++
++			//printf("dates : %u %u, file : %s\n", output->creatime, now, newpath);
++
++			if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_CURRENT,
++						output->directory) < 0) {
++				fprintf(stderr, "Path name too long for current in [%s]\n",
++						output->directory);
++				return -2;
++			}
++			rotateLogFiles(output->directory, output->maxfiles);
++			fclose(output->fp);
++			output->fp = NULL;
++			if (rename(path, newpath) < 0 && unlink(path) < 0) {
++				fprintf(stderr, "Unable to rename [%s] to [%s]\n",
++						path, newpath);
++				return -5;
++			}
++			if (output->postrotate_cmd != NULL)
++				spawnCommand(output->postrotate_cmd, date, prg, newpath);
++			if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_TIMESTAMP,
++						output->directory) < 0) {
++				fprintf(stderr, "Path name too long for timestamp in [%s]\n",
++						output->directory);
++				return -2;
++			}
++			unlink(path);
++			goto testdir;
++		}
++	}
++	if (output->dt.same_counter > 0U) {
++		if (output->dt.same_counter == 1) {
++			fprintf(output->fp, LAST_OUTPUT_TWICE);
++			output->size += (off_t) (sizeof LAST_OUTPUT_TWICE - (size_t) 1U);
++		} else {
++			int fps;
++
++			fps = fprintf(output->fp, LAST_OUTPUT, output->dt.same_counter);
++			if (fps >= (int) (sizeof LAST_OUTPUT - sizeof "%u")) {
++				output->size += (off_t) fps;
++			} else if (fps > 0) {
++				output->size += (off_t) (sizeof LAST_OUTPUT + (size_t) 10U);
++			}
++		}
++		output->dt.same_counter = 0U;
++	}
++	if (date != NULL) {
++		fprintf(output->fp, "%s [%s] %s\n", date, prg, info);
++		output->size += (off_t) strlen(date);
++	}
++	else {
++		fprintf(output->fp, "[%s] %s\n", prg, info);
++	}
++	output->size += (off_t) (sizeof_prg + sizeof_info);
++	output->size += (off_t) 5;
++	if (synchronous != (sig_atomic_t) 0) {
++		fflush(output->fp);
++	}
++	return 0;
++}
++
++static int processLogLine(const int logcode, const time_t * date,
++                          const char * const prg, char * const info) {
++	int ovector[16];
++	ConfigBlock *block = config_blocks;
++	RegexWithSign *this_regex;
++	const int facility = LOG_FAC(logcode);
++	const int priority = LOG_PRI(logcode);
++	int nb_regexes;
++	int info_len;
++	int prg_len;
++	int regex_result;
++
++	while (block != NULL) {
++		if (block->facilities != NULL) {
++			int nb = block->nb_facilities;
++			const int * const facilities = block->facilities;
++
++			while (nb > 0) {
++				nb--;
++				if (facility == facilities[nb]) {
++					goto facility_ok;
++				}
++			}
++			goto nextblock;
++		}
++		facility_ok:
++		if (priority > block->minimum && priority < block->maximum) {
++			goto nextblock;
++		}
++		if (block->program != NULL && strcasecmp(block->program, prg) != 0) {
++			goto nextblock;
++		}
++		if ((nb_regexes = block->program_nb_regexes) > 0) {
++			regex_result = 0;
++			if ((prg_len = (int) strlen(prg)) < 0) {
++				goto nextblock;
++			}
++			this_regex = block->program_regexeswithsign;
++			do {
++				if (this_regex->sign == REGEX_SIGN_POSITIVE) {
++					if (pcre_exec(this_regex->regex.pcre,
++								this_regex->regex.pcre_extra,
++								prg, prg_len, 0, 0, ovector,
++								sizeof ovector / sizeof ovector[0]) >= 0) {
++						regex_result = 1;
++					}
++				} else {
++					if (pcre_exec(this_regex->regex.pcre,
++								this_regex->regex.pcre_extra,
++								prg, prg_len, 0, 0, ovector,
++								sizeof ovector / sizeof ovector[0]) < 0) {
++						regex_result = 1;
++					}
++				}
++				this_regex++;
++				nb_regexes--;
++			} while (nb_regexes > 0);
++			if (regex_result == 0) {
++				goto nextblock;
++			}
++		}
++		if ((info_len = (int) strlen(info)) <= 0) {
++			goto nextblock;
++		}
++		if ((nb_regexes = block->nb_regexes) > 0 && *info != 0) {
++			regex_result = 0;
++			this_regex = block->regexeswithsign;
++			do {
++				if (this_regex->sign == REGEX_SIGN_POSITIVE) {
++					if (pcre_exec(this_regex->regex.pcre,
++								this_regex->regex.pcre_extra,
++								info, info_len, 0, 0, ovector,
++								sizeof ovector / sizeof ovector[0]) >= 0) {
++						regex_result = 1;
++					}
++				} else {
++					if (pcre_exec(this_regex->regex.pcre,
++								this_regex->regex.pcre_extra,
++								info, info_len, 0, 0, ovector,
++								sizeof ovector / sizeof ovector[0]) < 0) {
++						regex_result = 1;
++					}
++				}
++				this_regex++;
++				nb_regexes--;
++			} while (nb_regexes > 0);
++			if (regex_result == 0) {
++				goto nextblock;
++			}
++		}
++		if ((size_t) info_len > MAX_LOG_LENGTH) {
++			info[MAX_LOG_LENGTH] = 0;
++		}
++		/* generate the ASCII date */
++		char datebuf[100];     /* 100 is an arbitrary size; overflows are prevented by strftime()'s requirement for string size. */
++		{
++			struct tm *tm_ts;
++			time(date);
++			if ((tm_ts = localtime(date)) == NULL) {
++				*datebuf = 0;
++			} else {
++				if (block->output != NULL) {
++					if (block->output->tsformat == NULL) {
++						if ((block->output->tsformat = strdup(DEFAULT_TSFORMAT)) == NULL) {
++							perror("Oh no! More memory!");
++							return -3;
++						}
++					}
++					strftime(datebuf, sizeof datebuf, block->output->tsformat, tm_ts);
++				}
++			}
++		}
++
++		if (block->output != NULL) {
++			writeLogLine(block->output, (block->output->timestamp ? datebuf : NULL), prg, info);
++			if (block->brk)
++				break;
++		}
++		if (block->command != NULL) {
++			spawnCommand(block->command, datebuf, prg, info);
++			if (block->brk)
++				break;
++		}
++		nextblock:
++
++		block = block->next_block;
++	}
++
++	return 0;
++}
++
++static int doLog(const char * fmt, ...) {
++	const time_t now = time(NULL);
++	char infobuf[512];
++	va_list ap;
++
++	va_start(ap, fmt);
++	vsnprintf (infobuf, sizeof infobuf, fmt, ap);
++	va_end(ap);
+ 
+-    if (sizeof_info > output->dt.sizeof_previous_info) {
+-        char *pp = output->dt.previous_info;
+-
+-        if ((pp = realloc(output->dt.previous_info, sizeof_info)) != NULL) {
+-            output->dt.previous_info = pp;
+-            memcpy(output->dt.previous_info, info, sizeof_info);
+-            output->dt.sizeof_previous_info = sizeof_info;
+-        }
+-    } else {
+-        memcpy(output->dt.previous_info, info, sizeof_info);
+-        output->dt.previous_sizeof_info = sizeof_info;
+-    }
+-    if (sizeof_prg > output->dt.sizeof_previous_prg) {
+-        char *pp = output->dt.previous_prg;
+-
+-        if ((pp = realloc(output->dt.previous_prg, sizeof_prg)) != NULL) {
+-            output->dt.previous_prg = pp;
+-            memcpy(output->dt.previous_prg, prg, sizeof_prg);
+-            output->dt.sizeof_previous_prg = sizeof_prg;
+-        }
+-    } else {
+-        memcpy(output->dt.previous_prg, prg, sizeof_prg);
+-        output->dt.previous_sizeof_prg = sizeof_prg;
+-    }
+-    now = time(NULL);
+-    if (output->fp == NULL) {
+-        struct stat st;
+-        FILE *fp;
+-        FILE *fp_ts;
+-        time_t creatime;
+-        char path[MAXPATHLEN];
+-
+-        testdir:
+-        if (stat(output->directory, &st) < 0) {
+-            if (mkdir(output->directory, OUTPUT_DIR_PERMS) < 0) {
+-                fprintf(stderr, "Can't create [%s]\n", output->directory);
+-                return -1;
+-            }
+-        } else if (!S_ISDIR(st.st_mode)) {
+-            if (unlink(output->directory) < 0) {
+-                fprintf(stderr, "Can't unlink [%s]\n", output->directory);
+-                return -1;
+-            }
+-            goto testdir;
+-        }
+-        if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_CURRENT,
+-                     output->directory) < 0) {
+-            fprintf(stderr, "Path name too long for current in [%s]\n",
+-                    output->directory);
+-            return -2;
+-        }
+-        if ((fp = fopen(path, "a")) == NULL) {
+-            fprintf(stderr, "Unable to access [%s]\n", path);
+-            return -3;
+-        }
+-        if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_TIMESTAMP,
+-                     output->directory) < 0) {
+-            fprintf(stderr, "Path name too long for timestamp in [%s]\n",
+-                    output->directory);
+-            fclose(fp);
+-            return -2;
+-        }
+-        if ((fp_ts = fopen(path, "r")) == NULL) {
+-            recreate_ts:
+-            creatime = time(NULL);
+-            if ((fp_ts = fopen(path, "w")) == NULL) {
+-                fprintf(stderr, "Unable to write the timestamp [%s]\n", path);
+-                fclose(fp);
+-                return -3;
+-            }
+-            fprintf(fp_ts, "%llu\n", (unsigned long long) creatime);
+-        } else {
+-            unsigned long long creatime_;
+-
+-            if (fscanf(fp_ts, "%llu", &creatime_) <= 0) {
+-                fclose(fp_ts);
+-                goto recreate_ts;
+-            }
+-            creatime = (time_t) creatime_;
+-        }
+-        if (fclose(fp_ts) != 0) {
+-            fprintf(stderr, "Unable to close [%s]\n", path);
+-            return -3;
+-        }
+-        output->creatime = creatime;
+-        if (output->maxtime)
+-            output->creatime -= (creatime % output->maxtime);
+-        output->size = (off_t) ftell(fp);
+-        output->fp = fp;
+-    }
+-    if ((output->maxsize != 0) && (output->maxtime != 0)) {
+-        if (output->size >= output->maxsize ||
+-            now > (output->creatime + output->maxtime)) {
+-            struct tm *time_gm;
+-            char path[MAXPATHLEN];
+-            char newpath[MAXPATHLEN];
+-
+-            if (output->fp == NULL) {
+-                fprintf(stderr, "Internal inconsistency line [%d]\n", __LINE__);
+-                return -6;
+-            }
+-            if ((time_gm = gmtime(&now)) == NULL) {
+-                fprintf(stderr, "Unable to find the current date\n");
+-                return -4;
+-            }
+-            if (snprintf(newpath, sizeof newpath, "%s/" OUTPUT_DIR_LOGFILES_PREFIX,
+-                output->directory) < 0)
+-            {
+-                fprintf(stderr, "Path name too long for new path in [%s]\n",
+-                    output->directory);
+-                return -2;
+-            }
+-            if (strftime(newpath + strlen(newpath), sizeof newpath - strlen(newpath),
+-                        "%Y-%m-%d-%H:%m:%S", time_gm) == 0)
+-            {
+-                fprintf(stderr, "Path name too long for new path in [%s]\n",
+-                    output->directory);
+-                return -2;
+-            }
+-            if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_CURRENT,
+-                        output->directory) < 0) {
+-                fprintf(stderr, "Path name too long for current in [%s]\n",
+-                        output->directory);
+-                return -2;
+-            }
+-            rotateLogFiles(output->directory, output->maxfiles);
+-            fclose(output->fp);
+-            output->fp = NULL;
+-            if (rename(path, newpath) < 0 && unlink(path) < 0) {
+-                fprintf(stderr, "Unable to rename [%s] to [%s]\n",
+-                        path, newpath);
+-                return -5;
+-            }
+-            if (output->postrotate_cmd != NULL)
+-                spawnCommand(output->postrotate_cmd, date, prg, newpath);
+-            if (snprintf(path, sizeof path, "%s/" OUTPUT_DIR_TIMESTAMP,
+-                        output->directory) < 0) {
+-                fprintf(stderr, "Path name too long for timestamp in [%s]\n",
+-                        output->directory);
+-                return -2;
+-            }
+-            unlink(path);
+-            goto testdir;
+-        }
+-    }
+-    if (output->dt.same_counter > 0U) {
+-        if (output->dt.same_counter == 1) {
+-            fprintf(output->fp, LAST_OUTPUT_TWICE);
+-            output->size += (off_t) (sizeof LAST_OUTPUT_TWICE - (size_t) 1U);
+-        } else {
+-            int fps;
+-
+-            fps = fprintf(output->fp, LAST_OUTPUT, output->dt.same_counter);
+-            if (fps >= (int) (sizeof LAST_OUTPUT - sizeof "%u")) {
+-                output->size += (off_t) fps;
+-            } else if (fps > 0) {
+-                output->size += (off_t) (sizeof LAST_OUTPUT + (size_t) 10U);
+-            }
+-        }
+-        output->dt.same_counter = 0U;
+-    }
+-    fprintf(output->fp, "%s [%s] %s\n", date, prg, info);
+-    output->size += (off_t) strlen(date);
+-    output->size += (off_t) (sizeof_prg + sizeof_info);
+-    output->size += (off_t) 5;
+-    if (synchronous != (sig_atomic_t) 0) {
+-        fflush(output->fp);
+-    }
+-    return 0;
+-}
+-
+-static int processLogLine(const int logcode, const char * const date,
+-                          const char * const prg, char * const info)
+-{
+-    int ovector[16];
+-    ConfigBlock *block = config_blocks;
+-    RegexWithSign *this_regex;
+-    const int facility = LOG_FAC(logcode);
+-    const int priority = LOG_PRI(logcode);
+-    int nb_regexes;
+-    int info_len;
+-    int prg_len;
+-    int regex_result;
+-
+-    while (block != NULL) {
+-        if (block->facilities != NULL) {
+-            int nb = block->nb_facilities;
+-            const int * const facilities = block->facilities;
+-
+-            while (nb > 0) {
+-                nb--;
+-                if (facility == facilities[nb]) {
+-                    goto facility_ok;
+-                }
+-            }
+-            goto nextblock;
+-        }
+-        facility_ok:
+-        if (priority > block->minimum && priority < block->maximum) {
+-            goto nextblock;
+-        }
+-        if (block->program != NULL && strcasecmp(block->program, prg) != 0) {
+-            goto nextblock;
+-        }
+-        if ((nb_regexes = block->program_nb_regexes) > 0) {
+-            regex_result = 0;
+-            if ((prg_len = (int) strlen(prg)) < 0) {
+-                goto nextblock;
+-            }
+-            this_regex = block->program_regexeswithsign;
+-            do {
+-                if (this_regex->sign == REGEX_SIGN_POSITIVE) {
+-                    if (pcre_exec(this_regex->regex.pcre,
+-                                  this_regex->regex.pcre_extra,
+-                                  prg, prg_len, 0, 0, ovector,
+-                                  sizeof ovector / sizeof ovector[0]) >= 0) {
+-                        regex_result = 1;
+-                    }
+-                } else {
+-                    if (pcre_exec(this_regex->regex.pcre,
+-                                  this_regex->regex.pcre_extra,
+-                                  prg, prg_len, 0, 0, ovector,
+-                                  sizeof ovector / sizeof ovector[0]) < 0) {
+-                        regex_result = 1;
+-                    }
+-                }
+-                this_regex++;
+-                nb_regexes--;
+-            } while (nb_regexes > 0);
+-            if (regex_result == 0) {
+-                goto nextblock;
+-            }
+-        }
+-        if ((info_len = (int) strlen(info)) <= 0) {
+-            goto nextblock;
+-        }
+-        if ((nb_regexes = block->nb_regexes) > 0 && *info != 0) {
+-            regex_result = 0;
+-            this_regex = block->regexeswithsign;
+-            do {
+-                if (this_regex->sign == REGEX_SIGN_POSITIVE) {
+-                    if (pcre_exec(this_regex->regex.pcre,
+-                                  this_regex->regex.pcre_extra,
+-                                  info, info_len, 0, 0, ovector,
+-                                  sizeof ovector / sizeof ovector[0]) >= 0) {
+-                        regex_result = 1;
+-                    }
+-                } else {
+-                    if (pcre_exec(this_regex->regex.pcre,
+-                                  this_regex->regex.pcre_extra,
+-                                  info, info_len, 0, 0, ovector,
+-                                  sizeof ovector / sizeof ovector[0]) < 0) {
+-                        regex_result = 1;
+-                    }
+-                }
+-                this_regex++;
+-                nb_regexes--;
+-            } while (nb_regexes > 0);
+-            if (regex_result == 0) {
+-                goto nextblock;
+-            }
+-        }
+-        if ((size_t) info_len > MAX_LOG_LENGTH) {
+-            info[MAX_LOG_LENGTH] = 0;
+-        }
+-        if (block->output != NULL) {
+-            writeLogLine(block->output, date, prg, info);
+-            if (block->brk)
+-                break;
+-        }
+-        if (block->command != NULL) {
+-            spawnCommand(block->command, date, prg, info);
+-            if (block->brk)
+-                break;
+-        }
+-        nextblock:
+-
+-        block = block->next_block;
+-    }
+-
+-    return 0;
+-}
+-
+-static int doLog(const char * fmt, ...)
+-{
+-    const time_t now = time(NULL);
+-    struct tm *tm;
+-    static char datebuf[100];
+-    char infobuf[512];
+-    va_list ap;
+-
+-    if ((tm = localtime(&now)) == NULL) {
+-        *datebuf = 0;
+-    } else {
+-        strftime(datebuf, sizeof datebuf, "%b %e %T", tm);
+-    }
+-    va_start(ap, fmt);
+-    vsnprintf (infobuf, sizeof infobuf, fmt, ap);
+-    va_end(ap);
+-
+-    return processLogLine(LOG_SYSLOG, datebuf, "metalog", infobuf);
++	return processLogLine(LOG_SYSLOG, &now, "metalog", infobuf);
+ }
+ 
+ static void sanitize(char * const line_)
+ {
+-    register unsigned char *line = (unsigned char *) line_;
+-
+-    while (*line != 0U) {
+-        if (ISCTRLCODE(*line)) {
+-            *line = NONPRINTABLE_SUSTITUTE_CHAR;
+-        }
+-        line++;
+-    }
+-}
+-
+-static int log_line( LogLineType loglinetype, char *buf)
+-{
+-  int logcode;
+-  char *date;
+-  const char *prg;
+-  char *info;
+-
+-  sanitize( buf);
+-  if (parseLogLine( loglinetype, buf, &logcode, &date, &prg, &info) < 0) {
+-    return -1;
+-  }
+-  processLogLine(logcode, date, prg, info);
+-  return 0;
+-}
+-
+-static int log_udp( char *buf, int bsize)
+-{
+-  buf[bsize] = '\0';
+-  write( 1, buf, strlen(buf));
+-  return log_line( LOGLINETYPE_SYSLOG, buf);
+-}
+-
+-
+-static int log_kernel( char *buf, int bsize)
+-{
+-  char *s = buf;
+-  int n=0, start=0;
+-
+-  s = buf;
+-  while( n < bsize){
+-    if( s[n] == '\n'){
+-      s[n] = '\0';
+-      log_line( LOGLINETYPE_KLOG, &s[start]);
+-      start = n+1;
+-    }
+-    n++;
+-  }
+-
+-  /* we couldn't find any \n ???
+-     => invalidate this buffer */
+-  if( start == 0)
+-    return 0;
+-
+-  return bsize - start;
+-}
+-
+-static int process(const int sockets[])
+-{
+-    struct pollfd fds[3], *siglog, *syslog, *klog;
+-    int nfds;
+-    int event;
+-    ssize_t rd;
+-    int ld;
+-    char buffer[2][4096];
+-    int  bpos;
+-
+-    siglog = syslog = klog = NULL;
+-    nfds = 0;
+-
+-    siglog = &fds[nfds];
+-    fds[nfds].fd = dolog_queue[0];
+-    fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
+-    fds[nfds].revents = 0;
+-    ++nfds;
+-    if (sockets[0] >= 0) {
+-        syslog = &fds[nfds];
+-        fds[nfds].fd = sockets[0];
+-        fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
+-        fds[nfds].revents = 0;
+-        ++nfds;
+-    }
+-    if (sockets[1] >= 0) {
+-        klog = &fds[nfds];
+-        fds[nfds].fd = sockets[1];
+-        fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
+-        fds[nfds].revents = 0;
+-        ++nfds;
+-    }
+-
+-    bpos = 0;
+-    for (;;) {
+-        while (poll(fds, nfds, -1) < 0 && errno == EINTR)
+-            ;
+-
+-        /* Signal queue */
+-        if (siglog && siglog->revents) {
+-            event = siglog->revents;
+-            siglog->revents = 0;
+-            if (event != POLLIN) {
+-                fprintf(stderr, "Signal queue socket error - aborting\n");
+-                close(siglog->fd);
+-                return -1;
+-            }
+-
+-            signal_doLog_dequeue();
+-        }
+-
+-        /* UDP socket (syslog) */
+-        if (syslog && syslog->revents) {
+-            event = syslog->revents;
+-            syslog->revents = 0;
+-            if (event != POLLIN) {
+-                fprintf(stderr, "Syslog socket error - aborting\n");
+-                close(syslog->fd);
+-                return -1;
+-            }
+-
+-            /* receive a single log line (UDP) and process it. receive one byte for '\0' */
+-            while (((rd = read(syslog->fd, buffer[0], sizeof(buffer[0])-1)) < 0) && (errno == EINTR))
+-                ;
+-            if (rd == -1)
+-                return -1;
+-            log_udp(buffer[0], rd);
+-        }
+-
+-        /* STREAM_SOCKET (klog) */
+-        if (klog && klog->revents) {
+-            event = klog->revents;
+-            klog->revents = 0;
+-            if (event != POLLIN) {
+-                fprintf(stderr, "Klog socket error - aborting\n");
+-                close(klog->fd);
+-                return -1;
+-            }
+-
+-            /* receive a chunk of kernel log message... */
+-            while ((rd = read(klog->fd, &buffer[1][bpos], sizeof(buffer[1]) - bpos)) < 0 && errno == EINTR)
+-                ;
+-            if (rd == -1)
+-                return -1;
+-
+-            /* ... and process them line by line */
+-            rd += bpos;
+-            if ((ld = log_kernel(buffer[1], rd)) > 0) {
+-                /* move remainder of a message to the beginning of the buffer
+-                   it'll be logged once we can read the whole line into buffer[1] */
+-                memmove(buffer[1], &buffer[1][ld], bpos = rd - ld);
+-            } else {
+-                bpos = 0;
+-            }
+-        }
+-    }
+-    return 0;
+-}
+-
+-static int delete_pid_file(const char * const pid_file)
+-{
+-    if (pid_file != NULL) {
+-        return unlink(pid_file);
+-    }
+-    return 0;
+-}
+-
+-static int update_pid_file(const char * const pid_file)
+-{
+-    char buf[42];
+-    int fd;
+-    size_t towrite;
+-    ssize_t written;
+-
+-    if (pid_file == NULL || *pid_file != '/') {
+-        return 0;
+-    }
+-    if (SNCHECK(snprintf(buf, sizeof buf, "%lu\n",
+-                         (unsigned long) getpid()), sizeof buf)) {
+-        return -1;
+-    }
+-    if (unlink(pid_file) != 0 && errno != ENOENT) {
+-        return -1;
+-    }
+-    if ((fd = open(pid_file, O_CREAT | O_WRONLY | O_TRUNC |
+-                   O_NOFOLLOW, (mode_t) 0644)) == -1) {
+-        fprintf(stderr, "Unable to create the [%s] pid file : [%s]",
+-                pid_file, strerror(errno));
+-        return -1;
+-    }
+-    towrite = strlen(buf);
+-    while ((written = write(fd, buf, towrite)) < (ssize_t) 0 &&
+-           errno == EINTR);
+-    if (written < (ssize_t) 0 || (size_t) written != towrite) {
+-        fprintf(stderr, "Error while writing the [%s] pid file : [%s]",
+-                pid_file, strerror(errno));
+-        (void) ftruncate(fd, (off_t) 0);
+-        while (close(fd) != 0 && errno == EINTR);
+-        return -1;
+-    }
+-    while (close(fd) != 0 && errno == EINTR);
+-
+-    return 0;
+-}
+-
+-static void exit_hook(void)
+-{
+-    if (child > (pid_t) 0) {
+-        kill(child, SIGTERM);
+-    }
+-    delete_pid_file(pid_file);
+-}
+-
+-static void signal_doLog_queue(const char *fmt, const unsigned int pid, const int status)
+-{
+-    ssize_t ret;
+-    unsigned int fmt_len = (unsigned int)strlen(fmt);
+-    char buf[sizeof(pid) + sizeof(status) + sizeof(fmt_len)];
+-    memcpy(buf, &pid, sizeof(pid));
+-    memcpy(buf+sizeof(pid), &status, sizeof(status));
+-    memcpy(buf+sizeof(pid)+sizeof(status), &fmt_len, sizeof(fmt_len));
+-    ret = write(dolog_queue[1], buf, sizeof(buf));
+-    assert(ret == sizeof(buf));
+-    ret = write(dolog_queue[1], fmt, fmt_len);
+-    assert(ret == fmt_len);
+-}
++	register unsigned char *line = (unsigned char *) line_;
+ 
+-static void signal_doLog_dequeue(void)
+-{
+-    unsigned int pid, fmt_len;
+-    int status;
+-    char *buf;
+-    ssize_t ret;
+-
+-    ret = read(dolog_queue[0], &pid, sizeof(pid));
+-    assert(ret == sizeof(pid));
+-    ret = read(dolog_queue[0], &status, sizeof(status));
+-    assert(ret == sizeof(status));
+-    ret = read(dolog_queue[0], &fmt_len, sizeof(fmt_len));
+-    assert(ret == sizeof(fmt_len));
+-
+-    buf = malloc(fmt_len+1);
+-    assert(buf != NULL);
+-    ret = read(dolog_queue[0], buf, fmt_len);
+-    assert(ret == fmt_len);
+-    buf[fmt_len] = '\0';
+-
+-    ++spawn_recursion;
+-    doLog(buf, pid, status);
+-    --spawn_recursion;
++	while (*line != 0U) {
++		if (ISCTRLCODE(*line)) {
++			*line = NONPRINTABLE_SUSTITUTE_CHAR;
++		}
++		line++;
++	}
++}
++
++static int log_line( LogLineType loglinetype, char *buf) {
++	int logcode;
++	time_t date;
++	const char *prg;
++	char *info;
++	
++	sanitize( buf);
++	if (parseLogLine( loglinetype, buf, &logcode, &date, &prg, &info) < 0) {
++		return -1;
++	}
++	return processLogLine(logcode, &date, prg, info);
++}
++
++static int log_udp( char *buf, int bsize) {
++	buf[bsize] = '\0';
++	write( 1, buf, strlen(buf));
++	return log_line( LOGLINETYPE_SYSLOG, buf);
++}
++
++
++static int log_kernel( char *buf, int bsize) {
++	char *s = buf;
++	int n=0, start=0;
++	
++	s = buf;
++	while( n < bsize){
++		if( s[n] == '\n'){
++		s[n] = '\0';
++		log_line( LOGLINETYPE_KLOG, &s[start]);
++		start = n+1;
++		}
++		n++;
++	}
++	
++	/* we couldn't find any \n ???
++		=> invalidate this buffer */
++	if( start == 0)
++		return 0;
++	
++	return bsize - start;
++}
++
++static int process(const int sockets[]) {
++	struct pollfd fds[3], *siglog, *syslog, *klog;
++	int nfds;
++	int event;
++	ssize_t rd;
++	int ld;
++	char buffer[2][4096];
++	int  bpos;
++
++	siglog = syslog = klog = NULL;
++	nfds = 0;
++
++	siglog = &fds[nfds];
++	fds[nfds].fd = dolog_queue[0];
++	fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
++	fds[nfds].revents = 0;
++	++nfds;
++	if (sockets[0] >= 0) {
++		syslog = &fds[nfds];
++		fds[nfds].fd = sockets[0];
++		fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
++		fds[nfds].revents = 0;
++		++nfds;
++	}
++	if (sockets[1] >= 0) {
++		klog = &fds[nfds];
++		fds[nfds].fd = sockets[1];
++		fds[nfds].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
++		fds[nfds].revents = 0;
++		++nfds;
++	}
++
++	bpos = 0;
++	for (;;) {
++		while (poll(fds, nfds, -1) < 0 && errno == EINTR)
++			;
++
++		/* Signal queue */
++		if (siglog && siglog->revents) {
++			event = siglog->revents;
++			siglog->revents = 0;
++			if (event != POLLIN) {
++				fprintf(stderr, "Signal queue socket error - aborting\n");
++				close(siglog->fd);
++				return -1;
++			}
++
++			signal_doLog_dequeue();
++		}
++
++		/* UDP socket (syslog) */
++		if (syslog && syslog->revents) {
++			event = syslog->revents;
++			syslog->revents = 0;
++			if (event != POLLIN) {
++				fprintf(stderr, "Syslog socket error - aborting\n");
++				close(syslog->fd);
++				return -1;
++			}
++
++			/* receive a single log line (UDP) and process it. receive one byte for '\0' */
++			while (((rd = read(syslog->fd, buffer[0], sizeof(buffer[0])-1)) < 0) && (errno == EINTR))
++				;
++			if (rd == -1)
++				return -1;
++			if (log_udp(buffer[0], rd) != 0) {
++				fprintf(stderr, "log_udp() returned an error code!\n");
++		}
++
++		}
++
++		/* STREAM_SOCKET (klog) */
++		if (klog && klog->revents) {
++			event = klog->revents;
++			klog->revents = 0;
++			if (event != POLLIN) {
++				fprintf(stderr, "Klog socket error - aborting\n");
++				close(klog->fd);
++				return -1;
++			}
++
++			/* receive a chunk of kernel log message... */
++			while ((rd = read(klog->fd, &buffer[1][bpos], sizeof(buffer[1]) - bpos)) < 0 && errno == EINTR)
++				;
++			if (rd == -1)
++				return -1;
++
++			/* ... and process them line by line */
++			rd += bpos;
++			if ((ld = log_kernel(buffer[1], rd)) > 0) {
++				/* move remainder of a message to the beginning of the buffer
++				it'll be logged once we can read the whole line into buffer[1] */
++				memmove(buffer[1], &buffer[1][ld], bpos = rd - ld);
++			} else {
++				bpos = 0;
++			}
++		}
++	}
++	return 0;
++}
++
++static int delete_pid_file(const char * const pid_file) {
++	if (pid_file != NULL) {
++		return unlink(pid_file);
++	}
++	return 0;
++}
++
++static int update_pid_file(const char * const pid_file) {
++	char buf[42];
++	int fd;
++	size_t towrite;
++	ssize_t written;
++
++	if (pid_file == NULL || *pid_file != '/') {
++		return 0;
++	}
++	if (SNCHECK(snprintf(buf, sizeof buf, "%lu\n",
++						(unsigned long) getpid()), sizeof buf)) {
++		return -1;
++	}
++	if (unlink(pid_file) != 0 && errno != ENOENT) {
++		return -1;
++	}
++	if ((fd = open(pid_file, O_CREAT | O_WRONLY | O_TRUNC |
++				O_NOFOLLOW, (mode_t) 0644)) == -1) {
++		fprintf(stderr, "Unable to create the [%s] pid file : [%s]",
++				pid_file, strerror(errno));
++		return -1;
++	}
++	towrite = strlen(buf);
++	while ((written = write(fd, buf, towrite)) < (ssize_t) 0 &&
++		errno == EINTR);
++	if (written < (ssize_t) 0 || (size_t) written != towrite) {
++		fprintf(stderr, "Error while writing the [%s] pid file : [%s]",
++				pid_file, strerror(errno));
++		(void) ftruncate(fd, (off_t) 0);
++		while (close(fd) != 0 && errno == EINTR);
++		return -1;
++	}
++	while (close(fd) != 0 && errno == EINTR);
++
++	return 0;
++}
++
++static void exit_hook(void) {
++	if (child > (pid_t) 0) {
++		kill(child, SIGTERM);
++	}
++	delete_pid_file(pid_file);
++}
++
++static void signal_doLog_queue(const char *fmt, const unsigned int pid, const int status) {
++	ssize_t ret;
++	unsigned int fmt_len = (unsigned int)strlen(fmt);
++	char buf[sizeof(pid) + sizeof(status) + sizeof(fmt_len)];
++	memcpy(buf, &pid, sizeof(pid));
++	memcpy(buf+sizeof(pid), &status, sizeof(status));
++	memcpy(buf+sizeof(pid)+sizeof(status), &fmt_len, sizeof(fmt_len));
++	ret = write(dolog_queue[1], buf, sizeof(buf));
++	assert(ret == sizeof(buf));
++	ret = write(dolog_queue[1], fmt, fmt_len);
++	assert(ret == fmt_len);
++}
++
++static void signal_doLog_dequeue(void) {
++	unsigned int pid, fmt_len;
++	int status;
++	char *buf;
++	ssize_t ret;
++
++	ret = read(dolog_queue[0], &pid, sizeof(pid));
++	assert(ret == sizeof(pid));
++	ret = read(dolog_queue[0], &status, sizeof(status));
++	assert(ret == sizeof(status));
++	ret = read(dolog_queue[0], &fmt_len, sizeof(fmt_len));
++	assert(ret == sizeof(fmt_len));
++
++	buf = malloc(fmt_len+1);
++	assert(buf != NULL);
++	ret = read(dolog_queue[0], buf, fmt_len);
++	assert(ret == fmt_len);
++	buf[fmt_len] = '\0';
++
++	++spawn_recursion;
++	doLog(buf, pid, status);
++	--spawn_recursion;
+ }
+ 
+ __attribute__ ((noreturn))
+-static void metalog_signal_exit(int exit_status)
+-{
+-    exit_hook();
+-    _exit(exit_status);
++static void metalog_signal_exit(int exit_status) {
++	exit_hook();
++	_exit(exit_status);
+ }
+ 
+ __attribute__ ((noreturn))
+-static RETSIGTYPE sigkchld(int sig)
+-{
+-    signal_doLog_queue("Process [%u] died with signal [%d]\n", (unsigned int) getpid(), sig);
+-    metalog_signal_exit(EXIT_FAILURE);
++static RETSIGTYPE sigkchld(int sig) {
++	signal_doLog_queue("Process [%u] died with signal [%d]\n", (unsigned int) getpid(), sig);
++	metalog_signal_exit(EXIT_FAILURE);
+ }
+ 
+-static RETSIGTYPE sigchld(int sig)
+-{
+-    pid_t pid;
+-    signed char should_exit = 0;
+-    int child_status;
++static RETSIGTYPE sigchld(int sig)	{
++	pid_t pid;
++	signed char should_exit = 0;
++	int child_status;
+ 
+-    (void) sig;
++	(void) sig;
+ #ifdef HAVE_WAITPID
+-    while ((pid = waitpid((pid_t) -1, &child_status, WNOHANG)) > (pid_t) 0) {
++	while ((pid = waitpid((pid_t) -1, &child_status, WNOHANG)) > (pid_t) 0) {
+ #else
+-    while ((pid = wait3(&child_status, WNOHANG, NULL)) > (pid_t) 0) {
++	while ((pid = wait3(&child_status, WNOHANG, NULL)) > (pid_t) 0) {
+ #endif
+-        if (pid == child) {
+-            signal_doLog_queue("Klog child [%u] died.", (unsigned) pid, 0);
+-            should_exit = 1;
+-        } else {
+-            if (WIFEXITED(child_status) && WEXITSTATUS(child_status))
+-                signal_doLog_queue("Child [%u] exited with return code %u.",
+-                      (unsigned) pid, WEXITSTATUS(child_status));
+-            else if (!WIFEXITED(child_status))
+-                signal_doLog_queue("Child [%u] caught signal %u.",
+-                      (unsigned) pid, WTERMSIG(child_status));
+-            else if (verbose)
+-                signal_doLog_queue("Child [%u] exited successfully.", (unsigned) pid, 0);
+-        }
+-    }
+-    if (should_exit != 0) {
+-        child = (pid_t) 0;
+-        metalog_signal_exit(EXIT_FAILURE);
+-    }
+-}
+-
+-static RETSIGTYPE sigusr1(int sig)
+-{
+-    (void) sig;
+-
+-    synchronous = (sig_atomic_t) 1;
+-    signal_doLog_queue("Got SIGUSR1 - enabling synchronous mode.", 0, 0);
+-}
+-
+-static RETSIGTYPE sigusr2(int sig)
+-{
+-    (void) sig;
+-
+-    synchronous = (sig_atomic_t) 0;
+-    signal_doLog_queue("Got SIGUSR2 - disabling synchronous mode.", 0, 0);
+-}
+-
+-static void setsignals(void)
+-{
+-    atexit(exit_hook);
+-    signal(SIGCHLD, sigchld);
+-    signal(SIGPIPE, sigkchld);
+-    signal(SIGHUP, sigkchld);
+-    signal(SIGTERM, sigkchld);
+-    signal(SIGQUIT, sigkchld);
+-    signal(SIGINT, sigkchld);
+-    signal(SIGUSR1, sigusr1);
+-    signal(SIGUSR2, sigusr2);
+-}
+-
+-static int closedesc_all(const int closestdin)
+-{
+-    int fodder;
+-
+-    if (closestdin != 0) {
+-        (void) close(0);
+-        if ((fodder = open("/dev/null", O_RDONLY)) == -1) {
+-            return -1;
+-        }
+-        (void) dup2(fodder, 0);
+-        if (fodder > 0) {
+-            (void) close(fodder);
+-        }
+-    }
+-    if ((fodder = open("/dev/null", O_WRONLY)) == -1) {
+-        return -1;
+-    }
+-    (void) dup2(fodder, 1);
+-    (void) dup2(1, 2);
+-    if (fodder > 2) {
+-        (void) close(fodder);
+-    }
+-
+-    return 0;
+-}
+-
+-static void dodaemonize(void)
+-{
+-    pid_t child;
+-
+-    if (daemonize != 0) {
+-        if ((child = fork()) == (pid_t) -1) {
+-            perror("Daemonization failed - fork");
+-            return;
+-        } else if (child != (pid_t) 0) {
+-            _exit(EXIT_SUCCESS);
+-        } else if (setsid() == (pid_t) -1) {
+-            perror("Daemonization failed : setsid");
+-        }
+-        (void) chdir("/");
+-        (void) closedesc_all(1);
+-    }
++		if (pid == child) {
++			signal_doLog_queue("Klog child [%u] died.", (unsigned) pid, 0);
++			should_exit = 1;
++		} else {
++			if (WIFEXITED(child_status) && WEXITSTATUS(child_status))
++				signal_doLog_queue("Child [%u] exited with return code %u.",
++					(unsigned) pid, WEXITSTATUS(child_status));
++			else if (!WIFEXITED(child_status))
++				signal_doLog_queue("Child [%u] caught signal %u.",
++					(unsigned) pid, WTERMSIG(child_status));
++			else if (verbose)
++				signal_doLog_queue("Child [%u] exited successfully.", (unsigned) pid, 0);
++		}
++	}
++	if (should_exit != 0) {
++		child = (pid_t) 0;
++		metalog_signal_exit(EXIT_FAILURE);
++	}
++}
++
++static RETSIGTYPE sigusr1(int sig) {
++	(void) sig;
++
++	synchronous = (sig_atomic_t) 1;
++	signal_doLog_queue("Got SIGUSR1 - enabling synchronous mode.", 0, 0);
++}
++
++static RETSIGTYPE sigusr2(int sig) {
++	(void) sig;
++
++	synchronous = (sig_atomic_t) 0;
++	signal_doLog_queue("Got SIGUSR2 - disabling synchronous mode.", 0, 0);
++}
++
++static void setsignals(void) {
++	atexit(exit_hook);
++	signal(SIGCHLD, sigchld);
++	signal(SIGPIPE, sigkchld);
++	signal(SIGHUP, sigkchld);
++	signal(SIGTERM, sigkchld);
++	signal(SIGQUIT, sigkchld);
++	signal(SIGINT, sigkchld);
++	signal(SIGUSR1, sigusr1);
++	signal(SIGUSR2, sigusr2);
++}
++
++static int closedesc_all(const int closestdin) {
++	int fodder;
++
++	if (closestdin != 0) {
++		(void) close(0);
++		if ((fodder = open("/dev/null", O_RDONLY)) == -1) {
++			return -1;
++		}
++		(void) dup2(fodder, 0);
++		if (fodder > 0) {
++			(void) close(fodder);
++		}
++	}
++	if ((fodder = open("/dev/null", O_WRONLY)) == -1) {
++		return -1;
++	}
++	(void) dup2(fodder, 1);
++	(void) dup2(1, 2);
++	if (fodder > 2) {
++		(void) close(fodder);
++	}
++
++	return 0;
++}
++
++static void dodaemonize(void) {
++	pid_t child;
++
++	if (daemonize != 0) {
++		if ((child = fork()) == (pid_t) -1) {
++			perror("Daemonization failed - fork");
++			return;
++		} else if (child != (pid_t) 0) {
++			_exit(EXIT_SUCCESS);
++		} else if (setsid() == (pid_t) -1) {
++			perror("Daemonization failed : setsid");
++		}
++		(void) chdir("/");
++		(void) closedesc_all(1);
++	}
+ }
+ 
+ static void help(void) __attribute__ ((noreturn));
+-static void help(void)
+-{
+-    const struct option *options = long_options;
+-
+-    puts(PACKAGE " version " VERSION "\n");
+-    puts("Options:");
+-    do {
+-        printf("   -%c, --%s%s\n", options->val, options->name,
+-               options->has_arg ? " <opt>" : "");
+-        options++;
+-    } while (options->name != NULL);
+-    exit(EXIT_SUCCESS);
+-}
++static void help(void) {
++	const struct option *options = long_options;
+ 
+-static void parseOptions(int argc, char *argv[])
+-{
+-    int fodder;
+-    int option_index = 0;
+-
+-    while ((fodder =  getopt_long(argc, argv, GETOPT_OPTIONS,
+-                                  long_options, &option_index)) != -1) {
+-        switch (fodder) {
+-        case 'a' :
+-            synchronous = (sig_atomic_t) 0;
+-            break;
+-        case 'B' :
+-            daemonize = 1;
+-            break;
++	puts(PACKAGE " version " VERSION "\n");
++	puts("Options:");
++	do {
++		printf("   -%c, --%s%s\n", options->val, options->name,
++			options->has_arg ? " <opt>" : "");
++		options++;
++	} while (options->name != NULL);
++	exit(EXIT_SUCCESS);
++}
++
++static void parseOptions(int argc, char *argv[]) {
++	int fodder;
++	int option_index = 0;
++
++	while ((fodder =  getopt_long(argc, argv, GETOPT_OPTIONS,
++								long_options, &option_index)) != -1) {
++		switch (fodder) {
++		case 'a' :
++			synchronous = (sig_atomic_t) 0;
++			break;
++		case 'B' :
++			daemonize = 1;
++			break;
+ #ifdef HAVE_KLOGCTL
+-        case 'c' :
+-            console_level = atoi(optarg);
+-            if (console_level < MIN_CONSOLE_LEVEL ||
+-                console_level > MAX_CONSOLE_LEVEL) {
+-                fprintf(stderr, "Invalid console level\n");
+-                exit(EXIT_FAILURE);
+-            }
+-            break;
++		case 'c' :
++			console_level = atoi(optarg);
++			if (console_level < MIN_CONSOLE_LEVEL ||
++				console_level > MAX_CONSOLE_LEVEL) {
++				fprintf(stderr, "Invalid console level\n");
++				exit(EXIT_FAILURE);
++			}
++			break;
+ #endif
+-        case 'C' :
+-            if ((config_file = strdup(optarg)) == NULL) {
+-                perror("You're really running out of memory");
+-                exit(EXIT_FAILURE);
+-            }
+-            break;
+-        case 'v' :
+-            ++verbose;
+-            break;
+-        case 'V' :
+-            puts(PACKAGE " version " VERSION);
+-            exit(EXIT_SUCCESS);
+-        case 'h' :
+-            help();
+-        case 'p' :
+-            if ((pid_file = strdup(optarg)) == NULL) {
+-                perror("You're really running out of memory");
+-                exit(EXIT_FAILURE);
+-            }
+-            break;
+-        case 's' :
+-            break;
+-        case ':' :
+-            fprintf(stderr, "Option '%c' is missing parameter\n", optopt);
+-            exit(EXIT_FAILURE);
+-        case '?':
+-            fprintf(stderr, "Unknown option '%c' or argument missing\n", optopt);
+-            exit(EXIT_FAILURE);
+-        default :
+-            fprintf(stderr, "Unknown option '%c'\n", optopt);
+-            exit(EXIT_FAILURE);
+-        }
+-    }
+-}
+-
+-static void checkRoot(void)
+-{
+-    if (geteuid() != (uid_t) 0) {
+-        fprintf(stderr, "Sorry, you must be root to launch this program\n");
+-        exit(EXIT_FAILURE);
+-    }
+-}
+-
+-int main(int argc, char *argv[])
+-{
+-    int sockets[2];
++		case 'C' :
++			if ((config_file = strdup(optarg)) == NULL) {
++				perror("You're really running out of memory");
++				exit(EXIT_FAILURE);
++			}
++			break;
++		case 'v' :
++			++verbose;
++			break;
++		case 'V' :
++			puts(PACKAGE " version " VERSION);
++			exit(EXIT_SUCCESS);
++		case 'h' :
++			help();
++		case 'p' :
++			if ((pid_file = strdup(optarg)) == NULL) {
++				perror("You're really running out of memory");
++				exit(EXIT_FAILURE);
++			}
++			break;
++		case 's' :
++			break;
++		case ':' :
++			fprintf(stderr, "Option '%c' is missing parameter\n", optopt);
++			exit(EXIT_FAILURE);
++		case '?':
++			fprintf(stderr, "Unknown option '%c' or argument missing\n", optopt);
++			exit(EXIT_FAILURE);
++		default :
++			fprintf(stderr, "Unknown option '%c'\n", optopt);
++			exit(EXIT_FAILURE);
++		}
++	}
++}
++
++static void checkRoot(void) {
++	if (geteuid() != (uid_t) 0) {
++		fprintf(stderr, "Sorry, you must be root to launch this program\n");
++		exit(EXIT_FAILURE);
++	}
++}
++
++int main(int argc, char *argv[]) {
++	int sockets[2];
++
++	parseOptions(argc, argv);
++	checkRoot();
++	if (configParser(config_file) < 0) {
++		fprintf(stderr, "Bad configuration file - aborting\n");
++		return -1;
++	}
++	dodaemonize();
++	setsignals();
++	(void) update_pid_file(pid_file);
++	clearargs(argc, argv);
++	setprogname(PROGNAME_MASTER);
++	if (getDataSources(sockets) < 0) {
++		fprintf(stderr, "Unable to bind sockets - aborting\n");
++		return -1;
++	}
++	process(sockets);
+ 
+-    parseOptions(argc, argv);
+-    checkRoot();
+-    if (configParser(config_file) < 0) {
+-        fprintf(stderr, "Bad configuration file - aborting\n");
+-        return -1;
+-    }
+-    dodaemonize();
+-    setsignals();
+-    (void) update_pid_file(pid_file);
+-    clearargs(argc, argv);
+-    setprogname(PROGNAME_MASTER);
+-    if (getDataSources(sockets) < 0) {
+-        fprintf(stderr, "Unable to bind sockets - aborting\n");
+-        return -1;
+-    }
+-    process(sockets);
+-
+-    return 0;
++	return 0;
+ }
+diff -U4 -r metalog-0.8/src/metalog.h metalog-0.8-cJ/src/metalog.h
+--- metalog-0.8/src/metalog.h	2007-05-03 03:28:32.000000000 -0400
++++ metalog-0.8-cJ/src/metalog.h	2008-03-20 04:03:06.000000000 -0400
+@@ -139,17 +139,21 @@
+     size_t previous_sizeof_prg;
+     size_t previous_sizeof_info;
+     unsigned int same_counter;
+ } DuplicateTracker;
+-
++/* There is one Output instance per output file.
++ * There is a one-to-many relationship from ConfigBlocks to Outputs.
++ */
+ typedef struct Output_ {
+     char *directory;
+     FILE *fp;
+     off_t size;
+     off_t maxsize;
+     int maxfiles;
+     time_t maxtime;
+     time_t creatime;
++    char * tsformat;
++    int timestamp;
+     DuplicateTracker dt;
+     struct Output_ *next_output;
+     char *postrotate_cmd;
+     int showrepeats;
+@@ -173,8 +177,10 @@
+     int nb_regexes;
+     off_t maxsize;
+     int maxfiles;
+     time_t maxtime;
++    char *tsformat;
++    int timestamp;
+     Output *output;
+     const char *command;
+     const char *program;
+     /*
+@@ -201,8 +207,9 @@
+ #define DEFAULT_MAXSIZE ((off_t) 1000000)
+ #define DEFAULT_MAXFILES 5
+ #define DEFAULT_MAXTIME ((time_t) 60 * 60 * 24)
+ #define DEFAULT_CONSOLE_LEVEL 7
++#define DEFAULT_TSFORMAT "%F_%T" // "%b %d %T"
+ #define MIN_CONSOLE_LEVEL 0
+ #define MAX_CONSOLE_LEVEL 7
+ #define CF_PROGNAME_KERNEL "kernel"
+ #define OUTPUT_DIR_TIMESTAMP ".timestamp"
+Only in metalog-0.8-cJ/src: metalog.o
+Only in metalog-0.8-cJ/src: mysnprintf.o
+Only in metalog-0.8-cJ: stamp-h1
