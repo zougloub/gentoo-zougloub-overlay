@@ -1,2 +1,3 @@
 cross-x86_64-pc-linux-gnu
 cross-i686-pc-linux-gnu
+perl-gcpan
