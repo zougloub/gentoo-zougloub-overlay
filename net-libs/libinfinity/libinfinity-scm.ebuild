@@ -1,8 +1,6 @@
 # Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
-# This ebuild come from http://forums.gentoo.org/viewtopic-t-410834.html - The site http://gentoo.zugaina.org/ only host a copy.
-# Small modifications by Ycarus
+# $Header: $ net-libs/libinfinity-scm.ebuild 2008/12/14 05:44:16 cJ Exp $
 
 inherit git eutils
 
