@@ -1,0 +1,29 @@
+<h1>Zougloub-overlay</h1>
+
+<p>
+This is the index of gentoo ebuilds we host.
+</p>
+<p>
+This overlay can be accessed at :
+<ul>
+	<li>rsync://gentoo.zapto.org/portage-trees/zougloub</li>
+	<li>git://git.zougloub.eu/zougloub-overlay.git</li>
+	<li>recursive http download with
+<pre>
+wget \
+ --no-verbose \
+ --recursive \
+ --no-parent \
+ --reject "index.html,robots.txt" \
+ --no-host-directories \
+ --cut-dirs=1 \
+ --include-directories="repos/zougloub,repos/zougloub/*" \
+ --directory-prefix="$PORTDIR_OVERLAY" \
+ "http://gentoo.zapto.org/repos/zougloub"
+</pre>
+	</li>
+</ul>
+
+<br />
+You can add http://Gentoo.zapto.org/layman.xml to your layman overlays list to add it simply.
+</p>

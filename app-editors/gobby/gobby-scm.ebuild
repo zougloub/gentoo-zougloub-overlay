@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Header: $ app-editors/gobby-scm.ebuild 2008/12/14 05:44:16 cJ Exp $
 
 inherit git eutils
 
