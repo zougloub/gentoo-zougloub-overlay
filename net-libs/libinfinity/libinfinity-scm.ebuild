@@ -13,13 +13,19 @@ HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="gtk daemon avahi"
+IUSE="+gtk +daemon +avahi"
 RESTRICT="nomirror"
 
 RDEPEND="
-	net-libs/libgsasl
-	$(use avahi && echo -n net-dns/avahi)
-	$(use gtk && echo -n dev-cpp/gtkmm)
+ net-libs/libgsasl
+ sys-libs/e2fsprogs-libs
+ dev-libs/libgpg-error
+ dev-libs/glib:2
+ avahi? ( net-dns/avahi )
+ gtk? ( >=dev-cpp/gtkmm-2.6 x11-libs/gtksourceview:2.0 )
+ >=dev-libs/libsigc++-2.0
+ >=dev-cpp/libxmlpp-2.6
+ gnome? ( gnome-base/gnome-vfs )
 "
 
 DEPEND="${RDEPEND}
@@ -33,7 +39,7 @@ src_unpack() {
 src_compile() {
 	./autogen.sh || die "Autogen failed"
 	econf \
-	 $(use daemon && echo -n --with-infinoted) \
+	 $(use daemon && echo -n --with-infinoted || echo -n --without-infinoted) \
 	 $(use avahi && echo -n --with-avahi) \
 	 $(use gtk && echo -n --with-infgtk) \
 	  || die "Configure failed"
