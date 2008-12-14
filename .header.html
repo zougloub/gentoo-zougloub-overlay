@@ -10,7 +10,16 @@ This overlay can be accessed at :
 	<li>git://git.zougloub.eu/zougloub-overlay.git</li>
 	<li>recursive http download with
 <pre>
-wget -nv -r -np --reject "index.html,robots.txt" --no-host-directories "http://gentoo.zapto.org/repos/zougloub" --directory-prefix="/usr/portage"
+wget \
+ --no-verbose \
+ --recursive \
+ --no-parent \
+ --reject "index.html,robots.txt" \
+ --no-host-directories \
+ --cut-dirs=1 \
+ --include-directories="repos/zougloub,repos/zougloub/*" \
+ --directory-prefix="$PORTDIR_OVERLAY" \
+ "http://gentoo.zapto.org/repos/zougloub"
 </pre>
 	</li>
 </ul>
