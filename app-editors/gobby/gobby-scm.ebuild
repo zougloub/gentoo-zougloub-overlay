@@ -16,7 +16,10 @@ RESTRICT="nomirror"
 SLOT="0.5"
 
 RDEPEND="
-	=net-libs/libinfinity-scm
+ =net-libs/libinfinity-scm
+ x11-libs/gtksourceview:2.0
+ >=dev-libs/libsigc++-2.0
+ >=dev-cpp/libxmlpp-2.6
 "
 
 DEPEND="${RDEPEND}
