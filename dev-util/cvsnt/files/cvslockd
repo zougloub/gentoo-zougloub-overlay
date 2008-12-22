@@ -1,0 +1,27 @@
+#!/sbin/runscript
+# Copyright 2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+opts="start stop restart"
+
+depend() {
+	use net
+}
+
+start() {
+	ebegin "Starting cvslockd"
+	start-stop-daemon --start --quiet --exec /usr/bin/cvslockd
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping cvslockd"
+        start-stop-daemon --stop --quiet --exec /usr/bin/cvslockd
+	eend $?
+}
+
+restart() {
+	svc_stop
+	svc_start
+}

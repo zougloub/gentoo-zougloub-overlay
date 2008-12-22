@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>no-herd</herd>
+	<maintainer><email>dsomers@trevezel.com</email></maintainer>
+	<longdescription>
+CVSNT is a fork of CVS. It provides several features over and above those provided by the traddiional CVS, specifically:
+Merge tracking via MergePoint attribute; 
+Support for :sspi: authentication, i.e. users can use existing Windows domain accounts / passwords, rather than :pserver: and local password files; 
+Support for SSL encrypted :sserver: authentication; 
+Support for :ssh: authentication via built-in SSH client (based on PuTTY/Plink). No more need for :ext: and third-party software installation and setup on the client; 
+Branch ACLs can be used to restrict access with chacl and viewed with lsacl; 
+Remote user administration using cvs passwd command; 
+Repository browsing via cvs ls command (update: now provided in standard CVS since version 1.12.9); 
+LockServer on a second port replaces filesystem-based locks &amp; provides file level locking; 
+Runs as an NT service with a Windows control panel applet for easy configuration (CVSROOT/config scripts etc. still used though); 
+More sophisticated / extra triggers available e.g. postcommit; 
+Triggers also available via COM/DLL/so interfaces; 
+Supports Unicode files with additional keyword expansion switches; 
+Atomic Checkout behaviour ensures you get the right version of every file;
+Efficient storage of binary files using binary deltas; 
+Even more efficient storage using compressed deltas (when space is more important than performance); 
+Extended modules functionality using the modules2 file; 
+Advanced Reserved Edits and checked commits (supercedes exclusive locking concept;
+Server-side default options (cvsrc); 
+Require/request Encryption/Compression from the server - Lock out clients connecting over insecure protocols or using insecure/inefficient options; 
+Less error-prone and more effective ways to enforce Unix LF where necessary using new keyword option -kL; 
+Import without vendor branch and release tag.;
+"Import-and-go" by optionally turning freshly imported trees into a new sandbox automatically. No more need to purge and do a fresh checkout first;
+Brief Status output - See what's out-of-date at a single glance; 
+Full versioned rename (still under development).
+</longdescription>
+</pkgmetadata>
+ 

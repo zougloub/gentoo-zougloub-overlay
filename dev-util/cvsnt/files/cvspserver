@@ -1,0 +1,14 @@
+service cvspserver
+{
+	disable		= yes
+	only_from	= 10.0.0.0/24 192.168.0.0/16 
+	socket_type	= stream
+	wait		= no
+	user		= root
+	group		= root
+	log_type	= FILE /var/log/cvsnt
+	protocol	= tcp
+	passenv		= PATH
+	server		= /usr/bin/cvs
+	server_args	= -f -C /etc/cvsnt pserver
+}
