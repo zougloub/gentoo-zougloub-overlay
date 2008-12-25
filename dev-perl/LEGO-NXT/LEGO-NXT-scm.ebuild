@@ -20,6 +20,8 @@ DEPEND="
  $RDEPEND
 "
 
+# do nothing for configure, take stuff from the good eclasses for compile and install.
+
 src_configure() {
 	echo -n ""
 }
