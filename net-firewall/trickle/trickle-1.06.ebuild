@@ -1,6 +1,6 @@
 inherit eutils
 
-DESCRIPTION="Converts (La)TeX to (X)HTML, XML and OO.org"
+DESCRIPTION="trickle is a portable lightweight userspace bandwidth shaper. It can run in collaborative mode or in stand alone mode"
 HOMEPAGE="http://monkey.org/~marius/pages/?page=trickle"
 SRC_URI="http://monkey.org/~marius/trickle/${P}.tar.gz"
 RESTRICT="primaryuri"
