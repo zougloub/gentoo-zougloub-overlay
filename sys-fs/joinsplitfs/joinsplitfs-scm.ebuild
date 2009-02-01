@@ -14,6 +14,7 @@ DEPEND="${RDEPEND}
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
+EAPI=2
 
 ESVN_REPO_URI="https://svn.sourceforge.net/svnroot/${PN}"
 # ESVN_STORE_DIR="${PORTAGE_ACTUAL_DISTDIR-${DISTDIR}}/svn-src/"
