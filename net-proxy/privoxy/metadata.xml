@@ -2,5 +2,9 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 <herd>net-proxy</herd>
-<longdescription>A web proxy with advanced filtering capabilities for protecting privacy against internet junk</longdescription>
+<longdescription>
+Privoxy is a non-caching web proxy with advanced filtering capabilities for enhancing privacy, modifying web page data, managing HTTP cookies, controlling access, and removing ads, banners, pop-ups and other obnoxious Internet junk.
+Privoxy has a flexible configuration and can be customized to suit individual needs and tastes.
+Privoxy has application for both stand-alone systems and multi-user networks.
+</longdescription>
 </pkgmetadata>

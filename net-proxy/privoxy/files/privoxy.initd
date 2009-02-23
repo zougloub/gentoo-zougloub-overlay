@@ -18,8 +18,7 @@ start() {
 
 	ebegin "Starting privoxy"
 	start-stop-daemon --start --quiet --exec /usr/sbin/privoxy --pidfile "${PIDFILE}" \
-		-- --pidfile "${PIDFILE}" --user privoxy.privoxy --no-daemon "${CONFFILE}" 2>&1 | perl -ne 's/^.*? .*? .*? (.*)$/\1/g; print' | logger -t privoxy &
-#		-- --pidfile "${PIDFILE}" --user privoxy.privoxy "${CONFFILE}" #2>/dev/null
+		-- --pidfile "${PIDFILE}" --user privoxy.privoxy "${CONFFILE}" | logger -t privoxy
 	eend $?
 }
 
