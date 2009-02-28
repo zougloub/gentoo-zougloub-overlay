@@ -14,7 +14,7 @@ if [ -z "${FORMAT}" ] ; then
 fi
 
 for d in ${CONSOLE} ; do
-	echo -e ${FORMAT} > ${d}
+	echo -e ${FORMAT} >> ${d}
 done
 
 exit 0
