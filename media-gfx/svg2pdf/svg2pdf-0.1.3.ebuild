@@ -1,4 +1,4 @@
-DESCRIPTION="Convert an SVG file to a PDF file (using cairo)"
+DESCRIPTION="Cairo-based SVG to PDF converter"
 HOMEPAGE="http://cairographics.org/"
 SRC_URI="http://cairographics.org/snapshots/${P}.tar.gz"
 
