@@ -38,7 +38,7 @@ src_install() {
 	emake DESTDIR="${D}" install || die "make install failed"
 	dodoc AUTHORS ChangeLog README NEWS metalog.conf
 
-	into /
+	into /usr/
 	dosbin "${FILESDIR}/consolelog.sh" || die
 	dosbin "${FILESDIR}/metalog-net" || die
 	dobin "${FILESDIR}/metalog-console" || die
