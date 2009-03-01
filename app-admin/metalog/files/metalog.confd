@@ -16,3 +16,10 @@ CONSOLE="/dev/tty10"
 
 # Format of logging (make sure you use single quotes)
 FORMAT='$1 [$2] $3'
+
+
+# NetLog
+# Uncomment this to redirect logs to network (localhost)
+# You can then run metalog-console to monitor the syslog...
+# ... or use a network syslog.
+# NETLOG="localhost:5140"

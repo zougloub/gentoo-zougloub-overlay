@@ -39,7 +39,9 @@ src_install() {
 	dodoc AUTHORS ChangeLog README NEWS metalog.conf
 
 	into /
-	dosbin "${FILESDIR}"/consolelog.sh || die
+	dosbin "${FILESDIR}/consolelog.sh" || die
+	dosbin "${FILESDIR}/metalog-net" || die
+	dobin "${FILESDIR}/metalog-console" || die
 
 	newinitd "${FILESDIR}"/metalog.initd metalog
 	newconfd "${FILESDIR}"/metalog.confd metalog
