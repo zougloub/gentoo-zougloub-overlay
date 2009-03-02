@@ -2,7 +2,7 @@
 # Provides a metalog console, used when NETLOG goes to localhost
 
 
-socat udp-recv:5140 - \
+socat -u udp-recv:5140 - \
  | perl -e \
  '
 use POSIX qw(strftime);
