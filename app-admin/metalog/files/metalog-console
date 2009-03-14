@@ -2,12 +2,12 @@
 # Provides a metalog console, used when NETLOG goes to localhost
 
 
-socat -u udp-recv:5140 - \
+socat udp-recv:5140 - \
  | perl -e \
  '
 use POSIX qw(strftime);
 while (<>) {
- if (/^\S+\s+\s+\S+ \S+ (.+): (.*)$/) {
+ if (/^\S+ \S+ \S+ (.+): (.*)$/) {
   my $date = strftime("%F_%T", localtime);
   print "\e[33m$date\e[0m \e[32m$1\e[0m $2\n";
  }
