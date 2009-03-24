@@ -15,6 +15,7 @@ IUSE="+gtk +daemon +avahi"
 RESTRICT="nomirror"
 
 RDEPEND="
+ net-libs/gnutls
  net-libs/libgsasl
  sys-libs/e2fsprogs-libs
  dev-libs/libgpg-error
