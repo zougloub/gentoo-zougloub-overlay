@@ -1,0 +1,27 @@
+--- Makefile.in.orig	2008-09-22 19:29:30.000000000 -0400
++++ Makefile.in	2008-09-22 19:28:56.000000000 -0400
+@@ -100,14 +100,16 @@
+ 		ln -sf $(PTLIB_FILE).@MAJOR_VERSION@.@MINOR_VERSION@@BUILD_TYPE@@BUILD_NUMBER@ $(PTLIB_FILE) \
+ 	)
+ ifeq (1, $(HAS_PLUGINS))
+-	cd $(PT_LIBDIR)/device/ ; \
+-	( for dir in ./* ;\
+-		do mkdir -p $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir ; \
+-		chmod 755 $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir ; \
+-		(for fn in ./$$dir/*.so ; \
+-			do $(INSTALL) -m 444 $$fn $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir; \
+-		done ); \
+-	done )
++	if [ -d $(PT_LIBDIR)/device ] ; then \
++		cd $(PT_LIBDIR)/device/ ; \
++		( for dir in ./* ;\
++			do mkdir -p $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir ; \
++			chmod 755 $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir ; \
++			(for fn in ./$$dir/*.so ; \
++				do $(INSTALL) -m 444 $$fn $(DESTDIR)$(LIBDIR)/$(DEV_PLUGIN_DIR)/$$dir; \
++			done ); \
++		done ) \
++	fi
+ endif
+ 	$(INSTALL) -m 444 include/ptlib.h                $(DESTDIR)$(PREFIX)/include
+ 	$(INSTALL) -m 444 include/ptbuildopts.h          $(DESTDIR)$(PREFIX)/include

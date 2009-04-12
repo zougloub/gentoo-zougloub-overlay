@@ -25,7 +25,7 @@ start() {
 
 		*)
 		start-stop-daemon --start --exec /usr/sbin/metalog-net \
-		 --pidfile "${PIDFILE}" --background --env NETLOG="$NETLOG" \
+		 --pidfile "${PIDFILE}" --make-pidfile --background --env NETLOG="$NETLOG" \
 		 -- --pidfile="${PIDFILE}" ${METALOG_OPTS}
 		;;
 	esac
