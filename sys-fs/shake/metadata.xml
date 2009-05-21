@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		Shake is a defragmenter that runs in userspace, without the need of patching the kernel and while the system is in use (for now, on GNU/Linux only).
+		Contrary to xfs_fsr, it use only fonctions commons to all filesystems. More than a port, it tries to add new ideas, mainly the one of a selective defragmentation, that is to defragment only the few files that it's usefull to. 
+	</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+</pkgmetadata>
