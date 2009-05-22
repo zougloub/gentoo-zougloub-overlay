@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		MO3 is a file format, encapsulating the features of several "MOD" formats (IT, XM, S3M, MTM, MOD), but with one big difference: MP3 and OGG compressed samples. A lossless codec is also incorporated for any samples that don't like lossy encoding, and the whole file structure is compressed too.
+	</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+</pkgmetadata>

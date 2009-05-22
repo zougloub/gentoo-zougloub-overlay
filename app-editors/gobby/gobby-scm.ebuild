@@ -1,9 +1,9 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $ app-editors/gobby-scm.ebuild 2008/12/14 05:44:16 cJ Exp $
 
-inherit git eutils
+inherit eutils git
 
+EAPI=2
 EGIT_PROJECT="gobby"
 EGIT_REPO_URI="git://git.0x539.de/git/gobby.git"
 EGIT_TREE="gobby-infinote"
@@ -24,19 +24,20 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-	dev-util/git
 "
 
-src_unpack() {
-	git_src_unpack
+src_prepare() {
+	./autogen.sh || die "Autogen failed"
 }
 
-src_compile() {
-	./autogen.sh || die "Autoconf failed"
+src_configure() {
 	econf $(use gnome && echo --with-gnome) || die "Configure failed"
-	emake || die "Make failed"
 }
 
-src_install() {
-	emake install DESTDIR="$IMAGE/" || die "Could not install"
-}
+#src_compile() {
+#	emake || die "Make failed"
+#}
+
+#src_install() {
+#	emake install DESTDIR="$IMAGE/" || die "Could not install"
+#}
