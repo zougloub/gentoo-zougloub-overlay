@@ -17,6 +17,7 @@ EAPI=2
 
 src_install() {
 	for file in mo3enc unmo3;
+	do
 		chmod +x $file
 		dobin $file
 	done
