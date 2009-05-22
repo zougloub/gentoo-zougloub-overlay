@@ -1,7 +1,7 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils subversion
+inherit subversion eutils
 
 DESCRIPTION="Two virtual FUSE filesystems to join or split files."
 #SRC_URI="mirror://sourceforge/joinsplitfs/${PN}-v${PV}.tar.gz"
@@ -21,18 +21,23 @@ SLOT="0"
 IUSE=""
 EAPI=2
 
-ESVN_REPO_URI="https://svn.sourceforge.net/svnroot/${PN}"
+ESVN_REPO_URI="https://svn.sourceforge.net/svnroot/${PN}/trunk"
+
+S="$WORKDIR/$P/trunk"
+PARENT=notyet
 
 src_prepare() {
-	cd "${WORKDIR}/${P}/trunk/src"
+	PARENT="$S"
+	S="$S/src"
+	cd $S
+	echo $PWD >&2
 	./autotools.sh || die "preconf failed"
 }
 
 src_install() {
-	cd "${WORKDIR}/${P}/trunk/src"
 	dobin joinfs || die "Could not dobin joinfs binary"
 	dobin splitfs || die "Could not dobin splitfs binary"
-	#emake DESTDIR=${D} install || die "emake install failed"
-	dodoc README ChangeLog NEWS
+	dodoc NEWS TODO ChangeLog AUTHORS
+	cd "$PARENT"
+	dodoc README
 }
-
