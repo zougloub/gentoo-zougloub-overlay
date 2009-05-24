@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		ICMPTX is a program that allows a user with root privledges to create a virtual network link between two computers, encapsulating data inside of ICMP packets.
+	</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+</pkgmetadata>
