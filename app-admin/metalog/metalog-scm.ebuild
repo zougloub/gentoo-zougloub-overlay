@@ -1,6 +1,5 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-admin/metalog/metalog-0.9.ebuild,v 1.1 2009/01/28 00:48:47 vapier Exp $
 
 inherit eutils git
 
@@ -9,6 +8,7 @@ HOMEPAGE="http://metalog.sourceforge.net/"
 EGIT_PROJECT="metalog"
 EGIT_REPO_URI="git://git.zougloub.eu/metalog"
 EGIT_TREE="cJ"
+EGIT_BRANCH="cJ"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -21,17 +21,9 @@ PROVIDE="virtual/logger"
 
 EAPI="2"
 
-src_unpack() {
-        git_src_unpack
-}
 
-src_configure() {
-        ./autogen.sh || die "Autoconf failed"
-	default_src_configure
-}
-
-src_compile() {
-	default_src_compile
+src_prepare() {
+	./autogen.sh || die "Autoconf failed"
 }
 
 src_install() {

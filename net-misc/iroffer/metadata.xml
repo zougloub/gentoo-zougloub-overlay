@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		iroffer is a software program that acts as a fileserver for IRC. It is similar to a FTP server or WEB server, but users can download files using the DCC protocol of IRC instead of a web browser.
+		
+		Unlike similar programs, iroffer is not a script, it is a standalone executable written entirely in c from scratch with high transfer speed and effeciency in mind.
+		iroffer has been found to transfer over 50MByte/sec over a gigabit ethernet connection. 
+	</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+</pkgmetadata>

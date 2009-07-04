@@ -1,0 +1,53 @@
+EAPI=2
+
+inherit eutils toolchain-funcs git
+
+DESCRIPTION="Esperanza - a QT4 client for xmms2."
+HOMEPAGE="http://xmms2.xmms.org"
+
+EGIT_REPO_URI=git://git.xmms.se/xmms2/esperanza
+EGIT_PROJECT=esperanza
+#git_commit="32005e042158e9800b939d70f8333c969b9e3582"
+EGIT_TREE=HEAD
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="~x86 ~amd64 ~sparc"
+IUSE=""
+
+RESTRICT="nomirror"
+
+RDEPEND="
+ >=media-sound/xmms2-0.2.8_rc2[cpp]
+ >=dev-libs/boost-1.32
+ >=x11-libs/qt-4
+"
+
+DEPEND="
+ ${RDEPEND}
+"
+
+S=${WORKDIR}/esperanza
+
+src_compile() {
+	CC="$(tc-getCC) ${CFLAGS}"
+	CXX="$(tc-getCXX) ${CXXFLAGS}"
+	LINK="$(tc-getCXX) ${LDFLAGS}"
+	local newflags
+	newflags="-I /usr/include/xmms2"
+	CFLAGS="$CFLAGS $newflags"
+	CXXFLAGS="$CXXFLAGS $newflags"
+	INSTALLPATH=/usr/bin \
+	 qmake -nocache || die "QMAKE failed"
+	emake CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" || die "MAKE failed"
+}
+
+src_install() {
+	INSTALL_ROOT="${D}" emake install || die
+	dodoc COPYING
+
+	insinto /usr/share/pixmaps
+	newins images/esperanza.png esperanza.png
+
+	make_desktop_entry esperanza "esperanza" esperanza.png "Qt4;AudioVideo" " " "Multimedia"
+}
