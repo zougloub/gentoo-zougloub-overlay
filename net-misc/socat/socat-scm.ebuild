@@ -14,6 +14,8 @@ KEYWORDS="~amd64 ~x86"
 RESTRICT="nomirror"
 SLOT="0"
 
+IUSE="+ssl +readline -tcpd"
+
 RDEPEND="
  ssl? ( >=dev-libs/openssl-0.9.6 )
  readline? ( >=sys-libs/ncurses-5.1 >=sys-libs/readline-4.1 )
