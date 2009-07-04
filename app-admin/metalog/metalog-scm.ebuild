@@ -8,6 +8,7 @@ HOMEPAGE="http://metalog.sourceforge.net/"
 EGIT_PROJECT="metalog"
 EGIT_REPO_URI="git://git.zougloub.eu/metalog"
 EGIT_TREE="cJ"
+EGIT_BRANCH="cJ"
 
 LICENSE="GPL-2"
 SLOT="0"
