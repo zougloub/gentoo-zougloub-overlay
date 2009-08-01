@@ -34,21 +34,18 @@ DEPEND="${RDEPEND}
 #}
 
 src_install() {
-	dir="$IMAGE/usr/lib"
-	mkdir -p "$dir"
-	cp -f liburcu.so "$dir/"
+	insinto /usr/lib
+	doins liburcu.so
 
-	dir="$IMAGE/usr/include/liburcu"
-	mkdir -p "$dir"
-	cp -f arch.h arch_atomic.h compiler.h urcu.h urcu-static.h "$dir/"
+	insinto /usr/include/liburcu
+	doins arch.h arch_atomic.h compiler.h urcu.h urcu-static.h
 
-	dir="$IMAGE/usr/libexec/liburcu"
-	mkdir -p "$dir"
+	insinto /usr/libexec/liburcu
 	for file in $(find -type f -executable -regex "^./test.*");
 	do
-		cp -f $file "$dir/"
+		doins $file
 	done
-	cp -f urcutorture-yield urcutorture "$dir/"
+	doins urcutorture-yield urcutorture
 
 	dodoc README
 }
