@@ -3,11 +3,11 @@
 
 EAPI="2"
 
+inherit eutils cvs
+
 DESCRIPTION="Comedi DAQ library"
 HOMEPAGE="http://www.comedi.org"
 SRC_URI=""
-
-inherit eutils cvs
 
 ECVS_SERVER="cvs.comedi.org:/cvs/comedi"
 ECVS_MODULE="comedilib"
@@ -28,6 +28,7 @@ S=$WORKDIR/comedilib
 
 src_prepare() {
 	./autogen.sh
+	ewarn "As of 2009-08-04, comedilib fails building with Ruby bindings"
 }
 
 src_configure() {
