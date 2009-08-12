@@ -7,6 +7,7 @@ EAPI=2
 EGIT_PROJECT="gobby"
 EGIT_REPO_URI="git://git.0x539.de/git/gobby.git"
 EGIT_TREE="gobby-infinote"
+EGIT_BRANCH="gobby-infinote"
 DESCRIPTION="GTK-based collaborative editor"
 HOMEPAGE="http://gobby.0x539.de"
 LICENSE="GPL-2"
@@ -38,6 +39,6 @@ src_configure() {
 #	emake || die "Make failed"
 #}
 
-#src_install() {
-#	emake install DESTDIR="$IMAGE/" || die "Could not install"
-#}
+src_install() {
+	einstall DESTDIR="$IMAGE/" || die "Could not install"
+}
