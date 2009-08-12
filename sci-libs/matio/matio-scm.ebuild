@@ -33,8 +33,13 @@ src_configure() {
 }
 
 src_test() {
-	./test/test_mat || die "mat test failed"
-	./test/test_snprintf || die "snprintf test failed"
+	pushd test
+	for test in $(./test_mat --help-tests | grep "-" | awk '{ print $1 }');
+	do
+		./test_mat $test || die "mat test failed"
+	done
+	./test_snprintf || die "snprintf test failed"
+	popd
 }
 
 src_install() {
