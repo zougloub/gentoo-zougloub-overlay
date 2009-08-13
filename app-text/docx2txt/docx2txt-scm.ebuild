@@ -5,15 +5,15 @@ EAPI="2"
 
 inherit eutils cvs
 
-DESCRIPTION="Comedi DAQ library"
-HOMEPAGE="http://www.comedi.org"
+DESCRIPTION="Converts simple .docx to text files"
+HOMEPAGE="http://docx2txt.sourceforge.net/"
 SRC_URI=""
 
 ECVS_SERVER="docx2txt.cvs.sourceforge.net:/cvsroot/docx2txt"
 ECVS_MODULE="docx2txt"
 ECVS_TOP_DIR="${DISTDIR}/cvs-src/${PN}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86"
 IUSE=""
@@ -34,9 +34,7 @@ src_compile() {
 src_install() {
 	dodoc README ChangeLog ToDo
 
-	insinto /usr/bin
 	mv docx2txt.pl docx2txt
-	doins docx2txt || die "could not install docx2txt"
-
+	dobin docx2txt || die "could not install docx2txt"
 }
 
