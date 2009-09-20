@@ -1,18 +1,21 @@
-#!/bin/sh
-# Provides a metalog console, used when NETLOG goes to localhost
+#!/usr/bin/perl
 
-
-socat udp-recv:5140 - \
- | perl -e \
- '
+use 5.010;
 use POSIX qw(strftime);
-while (<>) {
- if (/^\S+ \S+ \S+ (.+): (.*)$/) {
-  my $date = strftime("%F_%T", localtime);
-  print "\e[33m$date\e[0m \e[32m$1\e[0m $2\n";
- }
- else {
-  print "$_";
- }
+
+open(my $socat, "socat -u udp-recv:5140 - |");
+while (<$socat>) {
+	#s/[\r\n]//g;
+	if (/^<(?<prio>\d)(?<service>\d)(?<truc>\d?)>(?<month>\S+)\s+(?<day>\d+) (?<hour>\S+) (?<logger>.+?): (?<message>.*)$/) {
+		my $date = strftime("%F_%T", localtime);
+		print "\e[33m$date\e[0m \e[32m$+{logger}\e[0m $+{message}\n";
+	}
+	else {
+		print "unparsed : $_";
+	}
 }
-'
+close($socat);
+
+__END__
+
+Provides a metalog console, used when NETLOG goes to localhost
