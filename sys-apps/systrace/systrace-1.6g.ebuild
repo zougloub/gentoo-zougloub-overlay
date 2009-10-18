@@ -32,7 +32,13 @@ src_unpack() {
 	    sed -i -e "s:<linux\/systrace.h>:\"${SYSTR_HEADER}\":" ./linux-syscalls.c
 	fi
 
-	epatch "${FILESDIR}/systrace-1.6g.patch"
+	uname -a | grep x86_64 >/dev/null
+	if [ $? == 1 ];
+	then
+		epatch "${FILESDIR}/systrace-1.6g.patch"
+	fi
+
+	#epatch "${FILESDIR}/systrace-1.6g-64bit.patch"
 
 	ebegin "Changing xsystrace path"
 	sed -i.bak -e "s|/usr/X11R6/bin/xsystrace|/usr/bin/xsystrace|g" systrace.h
