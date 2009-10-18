@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		GNOME Commander is a "two-pane" graphical file manager for the GNOME desktop environment.
+		GNOME Commander aims to fulfill the demands of more advanced users who like to focus on file management, their work through special applications and running smart commands. 
+	</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+	<use>
+		<flag name="exif">add support for Exif and IPTC</flag>
+		<flag name="id3">add support for ID3, Vorbis, FLAC and APE</flag>
+		<flag name="gsf">add support for OLE, OLE2 and ODF</flag>
+		<flag name="python">add support for python plugins</flag>
+	</use>
+</pkgmetadata>
+
