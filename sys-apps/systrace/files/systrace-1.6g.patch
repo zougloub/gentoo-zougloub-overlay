@@ -38,4 +38,15 @@
 +typedef int linux_pid_t;
 +
 
+# Allow codesegment 0x73
+--- linux_syscalls.c	2009-01-03 20:49:34.000000000 -0500
++++ linux_syscalls.c.new	2009-10-18 14:43:25.000000000 -0400
+@@ -647,3 +647,4 @@
+-        else {
+-		warnx("%s:%d: unknown code segment %lx\n",
+-		    __FILE__, __LINE__, codesegment);
++	else if (codesegment == 0x73)
++		return (LINUX32);
++	else {
++		warnx("%s:%d: unknown code segment %lx\n", __FILE__, __LINE__, codesegment);
 

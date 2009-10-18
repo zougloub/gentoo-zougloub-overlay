@@ -1,7 +1,3 @@
-# Copyright 1999-2006 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/systrace/systrace-1.6d.ebuild,v 1.1 2006/04/18 09:11:00 lcars Exp $
-
 inherit eutils
 
 DESCRIPTION="Interactive Policy Generation for System Calls"
@@ -38,6 +34,10 @@ src_unpack() {
 
 	epatch "${FILESDIR}/systrace-1.6g.patch"
 
+	ebegin "Changing xsystrace path"
+	sed -i.bak -e "s|/usr/X11R6/bin/xsystrace|/usr/bin/xsystrace|g" systrace.h
+	eend $?
+
 	export WANT_AUTOCONF=2.5
 }
 
@@ -45,3 +45,4 @@ src_install() {
 	dobin systrace || die
 	doman systrace.1
 }
+
