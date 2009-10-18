@@ -57,7 +57,7 @@ src_prepare() {
 
 	ebegin "Working around second intltool issue"
 	sed -i.bak "s:@INTLTOOL_DESKTOP_RULE@::g" data/Makefile.am
-	echo -e "gnome-commander.desktop: gnome-commander.desktop.in\n\tcat $< > $@@\n" >> data/Makefile.am
+	echo -e "gnome-commander.desktop: gnome-commander.desktop.in\n\tcat \$< > \$@\n\n" >> data/Makefile.am
 	eend $?
 
 	eautoreconf || die "eautoreconf failed"
