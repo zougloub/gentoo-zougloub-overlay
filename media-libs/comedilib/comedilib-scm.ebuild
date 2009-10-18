@@ -21,6 +21,7 @@ IUSE="-ruby +python"
 DEPEND="
  python? ( dev-lang/python dev-lang/swig )
  ruby? ( dev-lang/ruby dev-lang/swig )
+ doc? ( app-text/docbook2X )
 "
 RDEPEND="${DEPEND}"
 
