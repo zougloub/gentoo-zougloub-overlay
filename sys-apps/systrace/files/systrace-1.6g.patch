@@ -1,0 +1,41 @@
+# Change cs to xcs
+--- linux-ptrace-syscalls.c     2009-01-03 20:49:34.000000000 -0500
++++ linux-ptrace-syscalls.c.new	2009-10-18 12:18:22.000000000 -0400
+@@ -98 +98 @@
+-#define ISLINUX32(x)		(linux_call_type((x)->cs) == LINUX32)
++#define ISLINUX32(x)		(linux_call_type((x)->xcs) == LINUX32)
+@@ -1149 +1149 @@
+-	SYSCALL_NUM(regs) = linux_map_call(linux_call_type(regs->cs), SYSTR_CLONE);
++	SYSCALL_NUM(regs) = linux_map_call(linux_call_type(regs->xcs), SYSTR_CLONE);
+@@ -1297 +1297 @@
+-	SYSCALL_NUM(regs) = linux_map_call(linux_call_type(regs->cs), SYSTR_GETPID);
++	SYSCALL_NUM(regs) = linux_map_call(linux_call_type(regs->xcs), SYSTR_GETPID);
+@@ -1341 +1341 @@
+-	SYSCALL_NUM(&regs) = linux_map_call(linux_call_type(regs.cs), SYSTR_WAIT4);
++	SYSCALL_NUM(&regs) = linux_map_call(linux_call_type(regs.xcs), SYSTR_WAIT4);
+@@ -1440 +1440 @@
+-	call_type = linux_call_type(regs->cs);
++	call_type = linux_call_type(regs->xcs);
+@@ -1549 +1549 @@
+-	call_type = linux_call_type(regs->cs);
++	call_type = linux_call_type(regs->xcs);
+@@ -1564 +1564 @@
+-		if (regs->cs != 0x73 && regs->cs != 0x23) {
++		if (regs->xcs != 0x73 && regs->xcs != 0x23) {
+@@ -1570 +1570 @@
+-			errx(1, "%s: evil CS value 0x%x", __func__, regs->cs);
++			errx(1, "%s: evil CS value 0x%x", __func__, regs->xcs);
+@@ -1728 +1728 @@
+-		if (linux_call_type(regs->cs) == LINUX64)
++		if (linux_call_type(regs->xcs) == LINUX64)
+
+# For some reasons linux_types.h does not get read...
+--- linux_fcntl.h	2007-12-18 23:59:30.000000000 -0500
++++ linux_fcntl.h.new  2009-10-18 12:18:12.000000000 -0400
+@@ -86,0 +88,4 @@
++typedef long linux_off_t;
++typedef u_int64_t linux_loff_t;
++typedef int linux_pid_t;
++
+
+
