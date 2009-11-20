@@ -5,7 +5,7 @@
 EAPI=2
 
 ESVN_REPO_URI="http://ticpp.googlecode.com/svn/trunk/"
-inherit subversion
+inherit eutils toolchain-funcs subversion
 
 MY_PV=cvs
 DESCRIPTION="A completely new interface to TinyXML that uses MANY of the C++ strengths"
@@ -38,6 +38,8 @@ src_compile() {
 
 	emake ${myconf} || die "emake failed"
 
+	$(tc-getCXX) -o ../lib/libticpp.so -shared .obj/Release/*.o
+
 	if use doc ; then
 		sed -i -e '/GENERATE_HTMLHELP/s:YES:NO:' dox || die "sed failed"
 		doxygen dox || die "doxygen failed"
@@ -48,10 +50,10 @@ src_install () {
 	insinto /usr/include/ticpp
 	doins *.h || die "installing headers failed"
 
+	dolib ../lib/libticpp.so || die "installing library failed"
+	dolib ../lib/libticpp.a || die "installing library failed"
 	if use debug ; then
 		dolib ../lib/libticppd.a || die "installing library failed"
-	else
-		dolib ../lib/libticpp.a || die "installing library failed"
 	fi
 
 	dodoc {changes,readme,tutorial_gettingStarted,tutorial_ticpp}.txt || \
