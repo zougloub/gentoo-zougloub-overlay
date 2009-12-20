@@ -28,8 +28,9 @@ src_compile() {
 }
 
 src_install() {
-	dodir /usr/sbin /usr/share/man/man8/ || die "dodir failed"
+	dodir /usr/bin /usr/share/man/man8/ || die "dodir failed"
 	emake DESTDIR="${D}" PREFIX="/usr" install || die "emake failed"
+	mv "$D/usr/bin/unionfs" "$D/usr/bin/unionfs-fuse"
 	dodoc examples/* NEWS CREDITS
 }
 
