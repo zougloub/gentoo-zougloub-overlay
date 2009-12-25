@@ -8,6 +8,7 @@ DESCRIPTION="LibTorrent is a BitTorrent library written in C++ for *nix."
 HOMEPAGE="http://libtorrent.rakshasa.no/"
 SRC_URI=""
 ESVN_REPO_URI="svn://rakshasa.no/libtorrent/trunk/libtorrent"
+ESVN_REVISION="1105"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
@@ -25,10 +26,10 @@ DEPEND="
 src_prepare() {
 	#epatch "${FILESDIR}"/${P}-gcc44.patch
 	#elibtoolize
-	for file in dht-pex-static_map.diff magnet-uri.diff;
+	for file in dht-pex-static_map.diff magnet-uri.diff object-sstr.diff;
 	do
 		wget http://ovh.ttdpatch.net/~jdrexler/rt/experimental/$file
-		#patch --strip=1 --force < $file
+		patch --strip=1 --force < $file
 	done
 	./autogen.sh
 }

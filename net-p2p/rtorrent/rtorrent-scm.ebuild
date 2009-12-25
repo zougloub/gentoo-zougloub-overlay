@@ -8,6 +8,7 @@ DESCRIPTION="BitTorrent Client using libtorrent"
 HOMEPAGE="http://libtorrent.rakshasa.no/"
 SRC_URI=""
 ESVN_REPO_URI="svn://rakshasa.no/libtorrent/trunk/rtorrent"
+ESVN_REVISION="1105"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -33,10 +34,15 @@ DEPEND="
 "
 
 src_prepare() {
-	for file in dht-pex-static_map.diff magnet-uri.diff;
+	for file in dht-pex-static_map.diff magnet-uri.diff object-sstr.diff;
 	do
 		wget http://ovh.ttdpatch.net/~jdrexler/rt/experimental/$file
-		#patch --strip=1 --force < $file
+		patch --strip=1 --force < $file
+	done
+	for file in canvas-color.patch trackerinfo.patch;
+	do
+		wget http://www.simplylinux.ch/rtorrent/$file
+		patch --strip=1 --force < $file
 	done
 	./autogen.sh
 }
