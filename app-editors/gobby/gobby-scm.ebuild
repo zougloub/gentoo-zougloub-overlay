@@ -40,5 +40,5 @@ src_configure() {
 #}
 
 src_install() {
-	einstall DESTDIR="$IMAGE/" || die "Could not install"
+	emake install DESTDIR="$D" || die "Could not install"
 }
