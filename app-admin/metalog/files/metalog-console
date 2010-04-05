@@ -3,18 +3,26 @@
 use 5.010;
 use POSIX qw(strftime);
 
-open(my $socat, "socat -u udp-recv:5140 - |");
-while (<$socat>) {
-	#s/[\r\n]//g;
-	if (/^<(?<prio>\d)(?<service>\d)(?<truc>\d?)>(?<month>\S+)\s+(?<day>\d+) (?<hour>\S+) (?<logger>.+?): (?<message>.*)$/) {
+use IO::Socket;
+
+my $server = IO::Socket::INET->new(
+ LocalPort => 5140,
+ Proto     => "udp")
+ or die "Couldn't listen on metalog port : $@\n";
+
+my $MAX_TO_READ = 1500;
+my $flags = 0;
+my $datagram;
+
+while ($server->recv($datagram, $MAX_TO_READ)) {
+	if ($datagram =~ /^<(?<prio>\d)(?<service>\d)(?<truc>\d?)>(?<month>\S+)\s+(?<day>\d+) (?<hour>\S+) (?<logger>.+?): (?<message>.*)$/) {
 		my $date = strftime("%F_%T", localtime);
-		print "\e[33m$date\e[0m \e[32m$+{logger}\e[0m $+{message}\n";
+		print "[33m$date[0m [32m$+{logger}[0m $+{message}\n";
 	}
 	else {
-		print "unparsed : $_";
+		print "unparsed : $datagram";
 	}
 }
-close($socat);
 
 __END__
 
