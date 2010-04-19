@@ -29,7 +29,6 @@ RDEPEND="
 
 DEPEND="${RDEPEND}
  >=dev-util/gtk-doc-1.0
-	dev-util/git
 "
 
 src_unpack() {
