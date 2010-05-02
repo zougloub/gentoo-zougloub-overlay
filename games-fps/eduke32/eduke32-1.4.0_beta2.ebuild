@@ -23,7 +23,7 @@ SRC_URI="demo? (
 LICENSE="as-is"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="demo editor"
+IUSE="demo +editor"
 
 RDEPEND=">=media-libs/libsdl-1.2.9
 	virtual/libstdc++
@@ -43,12 +43,13 @@ src_unpack() {
 	if use demo ; then
 		unzip -qo DN3DSW13.SHR || die "unzip DN3DSW13.SHR failed"
 	else
-		# Look for registered version
-		for f in "${FILESDIR}"/*.{CON,con,DMO,dmo,GRP,grp,RTS,rts} ; do
+		ebegin "Looking for registered version"
+		for f in $(find /usr/share/games/duke3d | egrep "\.(CON|con|DMO|dmo|GRP|grp|RTS|rts)$"); do
 			if [[ -n $(ls -A "${f}" 2>/dev/null) ]] ; then
 				cp "${f}" . || die
 			fi
 		done
+		eend $?
 	fi
 
 	for f in *.{CON,DMO,GRP,RTS} ; do
