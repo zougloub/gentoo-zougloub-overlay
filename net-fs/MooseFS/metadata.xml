@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<herd>net-fs</herd>
+	<longdescription>Moose distributed File System</longdescription>
+	<maintainer>
+		<email>cJ-gentoo@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+	<use>
+		<flag name="masterserver">Install the main server software</flag>
+		<flag name="chunkserver">Install the chunk server software</flag>
+		<flag name="client">Install the client software (mfsmount)</flag>
+		<flag name="cgi">Install the cgi programs for web access</flag>
+	</use>
+	<upstream>
+		<bugs-to>
+			<![CDATA[
+			http://sourceforge.net/tracker/?group_id=228631&atid=1075719
+			or http://www.moosefs.org/contact.html
+			]]>
+		</bugs-to>
+	</upstream>
+</pkgmetadata>
