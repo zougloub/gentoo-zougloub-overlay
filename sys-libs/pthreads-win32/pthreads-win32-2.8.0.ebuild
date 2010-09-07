@@ -11,6 +11,8 @@ SLOT="0"
 KEYWORDS="x86"
 IUSE=""
 
+RESTRICT="primaryuri"
+
 RDEPEND="
  ${CATEGORY}/w32api
 "
