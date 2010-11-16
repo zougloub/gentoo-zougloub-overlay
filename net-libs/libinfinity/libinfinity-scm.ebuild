@@ -13,37 +13,64 @@ HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+gtk +daemon +avahi"
+IUSE="+gtk +server +avahi doc static-libs"
 RESTRICT="nomirror"
 
 RDEPEND="
+ >=dev-libs/glib-2.0
+ dev-libs/libxml2
  net-libs/gnutls
  net-libs/libgsasl
  sys-libs/e2fsprogs-libs
  dev-libs/libgpg-error
- dev-libs/glib:2
- avahi? ( net-dns/avahi )
- gtk? ( >=dev-cpp/gtkmm-2.6 x11-libs/gtksourceview:2.0 )
  >=dev-libs/libsigc++-2.0
  >=dev-cpp/libxmlpp-2.6
+ avahi? ( net-dns/avahi )
+ gtk? ( >=dev-cpp/gtkmm-2.6 >=x11-libs/gtksourceview-2.0 )
  gnome? ( gnome-base/gnome-vfs )
 "
 
 DEPEND="${RDEPEND}
- >=dev-util/gtk-doc-1.0
+ doc? ( dev-util/gtk-doc )
 "
 
 src_unpack() {
 	git_src_unpack
 }
 
-src_configure() {
+src_prepare() {
 	./autogen.sh || die "Autogen failed"
+}
+
+src_configure() {
 	econf \
-	 $(use daemon && echo -n --with-infinoted || echo -n --without-infinoted) \
-	 $(use avahi && echo -n --with-avahi) \
-	 $(use gtk && echo -n --with-infgtk) \
+	 $(use_with server infinoted) \
+	 $(use_with avahi) \
+	 $(use_with avahi libdaemon) \
+	 $(use_with gtk infgtk) \
+	 $(use_with gtk inftextgtk) \
+	 $(use_enable static-libs static) \
+	 $(use_enable doc gtk-doc) \
 	  || die "Configure failed"
 }
 
+src_install() {
+	emake DESTDIR="${D}" install || die
+	dodoc AUTHORS NEWS README TODO || die
+
+	if use server; then
+		newinitd "${FILESDIR}/infinoted.initd" infinoted
+		newconfd "${FILESDIR}/infinoted.confd" infinoted
+
+		keepdir /var/lib/infinote
+		fowners infinote:infinote /var/lib/infinote
+		fperms 770 /var/lib/infinote
+
+		dosym /usr/bin/infinoted-${MY_PV} /usr/bin/infinoted
+
+		elog "Add local users who should have local access to the documents"
+		elog "created by infinoted to the infinote group."
+		elog "The documents are saved in /var/lib/infinote per default."
+	fi
+}
 
