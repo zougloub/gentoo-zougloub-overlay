@@ -1,12 +1,13 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
+
 inherit eutils git
 
-EAPI=2
 EGIT_PROJECT="gobby"
 EGIT_REPO_URI="git://git.0x539.de/git/gobby.git"
-EGIT_TREE="gobby-infinote"
+EGIT_COMMIT="HEAD"
 EGIT_BRANCH="gobby-infinote"
 DESCRIPTION="GTK-based collaborative editor"
 HOMEPAGE="http://gobby.0x539.de"
@@ -35,10 +36,3 @@ src_configure() {
 	econf $(use gnome && echo --with-gnome) || die "Configure failed"
 }
 
-#src_compile() {
-#	emake || die "Make failed"
-#}
-
-src_install() {
-	emake install DESTDIR="$D" || die "Could not install"
-}

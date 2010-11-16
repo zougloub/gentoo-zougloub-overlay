@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $ net-libs/libinfinity-scm.ebuild 2008/12/14 05:44:16 cJ Exp $
 
+EAPI=2
+
 inherit git eutils
 
 EGIT_PROJECT="infinote"
@@ -35,16 +37,13 @@ src_unpack() {
 	git_src_unpack
 }
 
-src_compile() {
+src_configure() {
 	./autogen.sh || die "Autogen failed"
 	econf \
 	 $(use daemon && echo -n --with-infinoted || echo -n --without-infinoted) \
 	 $(use avahi && echo -n --with-avahi) \
 	 $(use gtk && echo -n --with-infgtk) \
 	  || die "Configure failed"
-	emake || die "Make failed"
 }
 
-src_install() {
-	emake install DESTDIR="$IMAGE/" || die "Could not install"
-}
+
