@@ -1,4 +1,4 @@
-NEED_PYTHON=2.4
+#!/bin/bash
 
 inherit distutils
 
@@ -9,7 +9,7 @@ SRC_URI="http://sk1project.org/downloads/${PN}/v${PV}/${P}.tar.gz"
 LICENSE="|| ( GPL-2 LGPL-2 )"
 SLOT="0"
 IUSE=""
-
+PYTHON_DEPEND="2:2.4"
 RDEPEND="dev-python/imaging"
 
 MY_PN="UniConvertor"
