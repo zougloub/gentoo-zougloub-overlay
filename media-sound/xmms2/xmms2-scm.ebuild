@@ -1,110 +1,110 @@
-EAPI=2
+# Copyright 1999-2007 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
 
-inherit eutils git toolchain-funcs
+inherit eutils toolchain-funcs git
 
-EGIT_REPO_URI="git://git.xmms.se/xmms2/xmms2-stable.git"
-EGIT_TREE="master"
-EGIT_PROJECT="xmms2-stable"
+DESCRIPTION="X(cross)platform Music Multiplexing System. The new generation of the XMMS player."
+HOMEPAGE="http://xmms2.xmms.org"
 
-S="${WORKDIR}/${EGIT_PROJECT}"
+EGIT_REPO_URI="git://git.xmms.se/xmms2/xmms2-devel.git"
 
-DESCRIPTION="XMMS2 Git Version"
-HOMEPAGE="http://wiki.xmms2.xmms.se/"
-LICENSE="LGPL-2.1 / GPL"
+LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="alsa jack oss java python ruby avahi vorbis wma mp3 aac flac gnome musepack samba modplug speex id3 daap curl sid ecore mms icecast"
+IUSE="aac alsa ao +asx avahi +avcodec +cdda clientonly coreaudio curl +cpp daap
++diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
++nophonehome ofa oss perl python rss ruby samba shout sid speex vorbis wma xml +xspf"
 
-RDEPEND="
- >=dev-libs/glib-2.6.0
- >=dev-db/sqlite-3.2.6
- dev-libs/boost
- aac? ( >=media-libs/faad2-2.0 )
- alsa? ( media-libs/alsa-lib )
- curl? ( >=net-misc/curl-7.11.2 )
- ecore? ( x11-libs/ecore )
- ruby? ( dev-lang/ruby )
- java? ( virtual/jdk )
- samba? ( net-fs/samba )
- python? ( >=dev-lang/python-2.2.1 >=dev-python/pyrex-0.9.3 )
- modplug? ( media-libs/libmodplug )
- musepack? ( media-libs/libmpcdec )
- vorbis? ( media-libs/libvorbis  media-libs/libogg )
- flac? ( media-libs/libvorbis >=media-libs/flac-1.1.2 )
- jack? ( >=media-sound/jack-audio-connection-kit-0.103.0 )
- mp3? ( media-libs/libmad )
- speex? ( >=media-libs/libogg-1.1 media-libs/speex )
- daap? ( >=media-libs/libopendaap-0.3.0 )	
- avahi? ( >=net-dns/avahi-0.6 )
- gnome? ( >=gnome-base/gnome-vfs-2.0 )
- sid? ( media-sound/sidplay media-libs/resid )
- wma? ( media-video/ffmpeg )
- mms? ( media-libs/libmms )
-"
+RESTRICT="mirror"
 
 DEPEND="
- ${RDEPEND}
- dev-util/pkgconfig
- >=dev-python/pyrex-0.9
- dev-lang/perl
+ !clientonly? (
+  >=dev-db/sqlite-3.3.4
+  aac? ( >=media-libs/faad2-2.0 )
+  alsa? ( media-libs/alsa-lib )
+  ao? ( media-libs/libao )
+  avahi? ( net-dns/avahi )
+  cdda? ( >=media-libs/libdiscid-0.1.1
+   >=media-sound/cdparanoia-3.9.8 )
+  curl? ( >=net-misc/curl-7.15.1
+     !=net-misc/curl-7.16.1
+     !=net-misc/curl-7.16.2 )
+  flac? ( media-libs/flac )
+  jack? ( >=media-sound/jack-audio-connection-kit-0.101.1 )
+  mms? ( media-video/ffmpeg
+   >=media-libs/libmms-0.3 )
+  modplug? ( media-libs/libmodplug )
+  mp3? ( media-sound/madplay )
+  mp4? ( media-video/ffmpeg )
+  ofa? ( media-libs/libofa )
+  rss? ( dev-libs/libxml2 )
+  samba? ( net-fs/samba )
+  sid? ( media-sound/sidplay
+   media-libs/resid )
+  speex? ( media-libs/speex )
+  vorbis? ( media-libs/libvorbis )
+  xml? ( dev-libs/libxml2 )
+  xspf? ( dev-libs/libxml2 ) )
+ >=dev-lang/python-2.4.3
+ >=dev-libs/glib-2.12.9
+ cpp? ( >=dev-libs/boost-1.32 )
+ ecore? ( x11-libs/ecore )
+ fam? ( app-admin/gamin )
+ perl? ( >=dev-lang/perl-5.8.8 )
+ python? ( >=dev-python/pyrex-0.9.5.1 )
+ ruby? ( >=dev-lang/ruby-1.8.5 )
+ mac? ( media-sound/mac )
 "
-# >=dev-util/scons-0.96
 
-DISABLE=""
+RDEPEND="${DEPEND}"
 
-src_unpack() {
-	git_src_unpack
-	cd "${S}"
-	#sed -i -e "s:/lib:/$(get_libdir):g" SConstruct xmms2.pc.in xmmsenv.py
-}
-
-src_configure() {
-	local u o
-	for u in aac:faad alsa curl modplug flac \
-		 jack mp3:mad musepack oss samba sid speex  \
-                 vorbis daap id3:id3v2 wma mms \
-		 icecast:icymetaint; #avahi:mdns java python gnome:gnomevfs ecore ruby
-	do
-		o=${u##*:} ; o=${o:-${u}}
-		u=${u%%:*}
-		case $DISABLE in 
-			"")
-			use ${u} || DISABLE="${o}"
-			;;
-			
-			*)
-			use ${u} || DISABLE="${DISABLE},${o}"
-			;;
-		esac
-        done
-
-	echo "Disabling: ${DISABLE}"
-	./waf configure --destdir="${D}" --without-plugins=$DISABLE --with-mandir=/usr/share/man --prefix=/usr || die "Configure failed !"
-
-}
+S=${WORKDIR}/${version}
 
 src_compile() {
-	ebegin "Guessing job number"
-	echo $MAKEOPTS | perl -pe \
-	'
-		s/(-j\s*\d|--jobs=\d)/JOBS_OPTS="$1"/;
-	' > job_opts
-	. job_opts
-	eend $?
+	local exc=""
+	local excl_pls=""
+	local excl_opts=""
+	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D}"
+	if use clientonly ; then
+		exc="--without-xmms2d=1 "
+	else
+		for x in avahi cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby ; do
+			use ${x/:*} || excl_opts="${excl_opts},${x/*:}"
+		done
+		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa oss rss samba sid speex vorbis xml xspf ; do
+			use ${x/:*} || excl_pls="${excl_pls},${x/*:}"
+		done
+	fi
 
-	./waf $JOBS_OPTS || die "Compilation failed"
-	# --progress
-	
-	echo \
-	 CC=$(tc-getCC) \
-	 CXX=$(tc-getCXX) \
-	 CCFLAGS="${CFLAGS}" \
-	 CXXFLAGS="${CXXFLAGS}" \
-	 LINK=$(tc-getCC) \
-	 CONFIG="yes"
+	if [ ${excl_pls} != "" ]
+	then
+		options="${options} --without-plugins=${excl_pls:1}"
+	fi
+	if [ ${excl_opts} != "" ]
+	then
+		options="${options} --without-optionals=${excl_opts:1}"
+	fi
+	CC="$(tc-getCC) ${CFLAGS} -fPIC" \
+	CXX="$(tc-getCXX) ${CXXFLAGS} -fPIC" \
+	LINK="$(tc-getCXX) ${LDFLAGS} -fPIC"
+
+	"${S}"/waf --nocache ${options} ${exc} configure || die "Configure failed"
+	# parallel builds are bad with DrJekyll, it will corrupt your pc-files
+	"${S}"/waf build || die "Build failed"
 }
 
 src_install() {
-	./waf install --destdir="${D}" || die "Install failed!"
-	dodoc AUTHORS ChangeLog README
+	"${S}"/waf --destdir="${D}" install || die
+	dodoc AUTHORS TODO README
+}
+
+pkg_postinst() {
+	if ! use nophonehome ; then
+		einfo ""
+		einfo "The phone-home client xmms2-et was activated"
+		einfo "This client sends anonymous usage-statistics to the xmms2"
+		einfo "developers which may help finding bugs"
+		einfo "Enable the nophonehome useflag if you don't like that"
+	fi
 }

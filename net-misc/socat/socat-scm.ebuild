@@ -6,6 +6,7 @@ inherit eutils git
 EAPI=2
 EGIT_PROJECT="socat"
 EGIT_REPO_URI="git://repo.or.cz/socat.git"
+EGIT_REPO_URI="/home/cJ/dev/my/socat/"
 DESCRIPTION="Multipurpose relay : netcat++ (extended design, new implementation)"
 HOMEPAGE="http://www.dest-unreach.org/socat/"
 LICENSE="GPL-2"
