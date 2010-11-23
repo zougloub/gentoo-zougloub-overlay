@@ -1,6 +1,5 @@
-# Copyright 1999-2007 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: app-text/pdftk/pdftk-1.41.ebuild v1 2008/12/22 09:29:31 cJ Exp $
 
 inherit eutils
 
@@ -21,8 +20,6 @@ $RDEPEND
 "
 RESTRICT="primaryuri"
 
-#S=${WORKDIR}/${P}/${PN}
-
 src_compile() {
 	emake || die "emake failed"
 	if use gui;
@@ -38,6 +35,5 @@ src_install() {
 	dobin src/ansifilter
 	use gui && dobin src/qt-gui/ansifilter-gui
 	dodoc README ChangeLog
-	return
 }
 
