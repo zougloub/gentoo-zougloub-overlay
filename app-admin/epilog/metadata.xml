@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		epilog configuration is quite simple and enables redirecting of logs to specific logfiles based 
+on any operation on program name, facility type, priority, and text contents.
+		It has built-in log rotating, making logrotate and friends useless.
+	</longdescription>
+	<maintainer>
+		<email>cJ-epilog@zougloub.eu</email>
+		<name>Jérôme Carretero</name>
+	</maintainer>
+</pkgmetadata>
