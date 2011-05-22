@@ -21,7 +21,7 @@ SLOT="0"
 IUSE=""
 EAPI=2
 
-ESVN_REPO_URI="https://svn.sourceforge.net/svnroot/${PN}/trunk"
+ESVN_REPO_URI="https://${PN}.svn.sourceforge.net/svnroot/${PN}/trunk"
 
 S="$WORKDIR/$P/trunk"
 PARENT=notyet
