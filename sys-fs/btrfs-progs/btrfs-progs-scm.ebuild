@@ -11,13 +11,15 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="acl debug-utils"
+IUSE="+acl +debug-utils"
 
-DEPEND="debug-utils? ( dev-python/matplotlib )
-	acl? (
-			sys-apps/acl
-			sys-fs/e2fsprogs
-	)"
+DEPEND="
+ debug-utils? ( dev-python/matplotlib )
+ acl? (
+  sys-apps/acl
+  sys-fs/e2fsprogs
+ )
+"
 RDEPEND="${DEPEND}"
 
 EGIT_REPO_URI="git://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs-unstable.git"
@@ -45,16 +47,17 @@ src_compile() {
 
 src_install() {
 	into /
-	dosbin btrfs-show
-	dosbin btrfs-vol
-	dosbin btrfsctl
-	dosbin btrfsck
-	dosbin btrfstune
-	dosbin btrfs-image
+
+	for prog in btrfs btrfs-vol btrfsctl btrfsck btrfstune btrfs-image mkfs.btrfs;
+	do
+		dosbin $prog
+	done
+
 	# fsck will segfault if invoked at boot, so do not make this link
 	#dosym btrfsck /sbin/fsck.btrfs
-	newsbin mkfs.btrfs mkbtrfs
-	dosym mkbtrfs /sbin/mkfs.btrfs
+
+	newsbin bcp btrfs-bcp
+
 	if use acl; then
 		dosbin btrfs-convert
 	else
@@ -62,18 +65,10 @@ src_install() {
 	fi
 
 	if use debug-utils; then
-		dobin btrfs-debug-tree
-	else
-		ewarn "Note: btrfs-debug-tree not installed (requires debug-utils USE flag)"
-	fi
-
-	into /usr
-	newbin bcp btrfs-bcp
-
-	if use debug-utils; then
+		dosbin btrfs-debug-tree
+	 	dosbin btrfs-map-logical
 		newbin show-blocks btrfs-show-blocks
-	else
-		ewarn "Note: btrfs-show-blocks not installed (requires debug-utils USE flag)"
+		dosbin btrfs-show
 	fi
 
 	dodoc INSTALL
@@ -85,3 +80,4 @@ pkg_postinst() {
 	ewarn "         and care should be taken that it is compatible with the"
 	ewarn "         version of btrfs in your kernel!"
 }
+
