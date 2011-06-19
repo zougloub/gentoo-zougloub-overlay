@@ -39,9 +39,7 @@ src_compile() {
 }
 
 src_install() {
-	dobin promoe
-	dodoc AUTHORS README TODO
-	newicon "data/icon.png" "${PN}.png"
+	./waf install --destdir=${D} --prefix=/usr
 	make_desktop_entry "${PN}" "Promoe XMMS2 Client" "${PN}" "AudioVideo;Audio;Player"
 }
 
