@@ -3,6 +3,7 @@
 # $Header: $
 
 # http://bugzilla.scilab.org/
+# http://wiki.scilab.org/Dependencies%20of%20Scilab%205.X
 
 # Main issues:
 #  * requires saxon 6.5 to compile help
@@ -60,6 +61,9 @@ DEPEND="
 pkg_setup() {
 	#CHECKREQS_MEMORY="512"
 	java-pkg-2_pkg_setup
+
+	# temp Bug 6593 upstream, fixed
+	append-ldflags $(no-as-needed)
 }
 
 src_prepare() {
@@ -67,15 +71,29 @@ src_prepare() {
 	# Increases java heap to 512M when available, when building docs
 	#check_reqs_conditional && epatch "${FILESDIR}/java-heap-${PV}.patch"
 
+	use doc && die "doc USE not supported..."
+
 	ebegin scilab is installed in /usr/lib, not an opt-like folder.
 	sed -i -e 's|SCILIB=$SCI/bin:$SCI/lib/scilab/:$SCI/lib64/scilab/|SCILIB=/usr/lib/scilab:/usr/lib64/scilab|' bin/scilab || die
 	eend $?
 
 	ebegin Fix jgraphx bad version check
 	sed -i -e 's|\[mxGraph.VERSION\],\[\],\[=\]|[mxGraph.VERSION]|' configure.ac || die
+	sed -i \
+	 -e 's|throw new RuntimeException.String.format.UNABLE_TO_LOAD_JGRAPHX,||' \
+	 -e 's|MXGRAPH_VERSIONS.get.0., .*;||' \
+	 modules/xcos/src/java/org/scilab/modules/xcos/Xcos.java || die
+	sed -i \
+	 -e 's|throw new RuntimeException.String.format.UNABLE_TO_LOAD_JHDF5,||' \
+	 -e 's|HDF5_VERSIONS.get.0., .*;||' \
+	 modules/xcos/src/java/org/scilab/modules/xcos/Xcos.java || die
+	sed -i \
+	 -e 's|throw new RuntimeException.String.format.UNABLE_TO_LOAD_BATIK,||' \
+	 -e 's|BATIK_VERSIONS.get.0., .*;||' \
+	 modules/xcos/src/java/org/scilab/modules/xcos/Xcos.java || die
 	eend $?
 
-	ebegin Fix some java dependency stuff...
+	ebegin Fix some java dependency stuff
 	# includes...
 	sed -i -e "s|-L\$SCI_SRCDIR/bin/|-L\$SCI_SRCDIR/bin/ -L$(java-config -i gluegen) -L$(java-config -i hdf-java) -L$(java-config -i jogl)|" configure.ac || die
 	# and libary paths...
