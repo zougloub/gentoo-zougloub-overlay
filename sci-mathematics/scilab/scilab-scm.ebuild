@@ -124,6 +124,7 @@ src_configure() {
 
 	# mpi is only used for hdf5 i/o
 	if use hdf5 && has_version sci-libs/hdf5[mpi]; then
+		die "mpi compilation not working at the moment..."
 		export CC=mpicc
 		export CXX=mpicxx
 		export FC=mpif90
