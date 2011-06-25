@@ -1,0 +1,10 @@
+diff --git a/src/engines/TorrentDownload.cpp b/src/engines/TorrentDownload.cpp
+index 9a24fdb..71f3bcc 100644
+--- a/src/engines/TorrentDownload.cpp
++++ b/src/engines/TorrentDownload.cpp
+@@ -30,0 +31 @@ respects for all of the code used other than "OpenSSL".
++#include "Queue.h"
+@@ -1520,0 +1522 @@ QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
++#if defined(WITH_WEBINTERFACE)
+@@ -1530,0 +1533 @@ QVariant TorrentDownload::setFilePriorities(QList<QVariant>& args)
++#endif
