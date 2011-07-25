@@ -23,7 +23,6 @@ RESTRICT="nomirror"
 
 RDEPEND="
 	!virtual/game_spring
-	virtual/glut
 	omni? ( dev-python/wxpython )
 	unity-lobby? ( >=dev-python/pygtk-2.10 >=x11-libs/gtk+-2.10 dev-lang/python dev-python/imaging )
 	media-libs/glew
