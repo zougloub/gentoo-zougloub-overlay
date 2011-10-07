@@ -15,7 +15,7 @@ ESVN_REPO_URI="http://codespeak.net/svn/lxml/trunk"
 LICENSE="BSD ElementTree GPL-2 PSF-2.4"
 SLOT="0"
 IUSE="doc examples +threads"
-KEYWORDS="~amd64 ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x64-solaris ~x86-solaris"
+KEYWORDS=""
 
 RDEPEND="
  >=dev-libs/libxml2-2.7
