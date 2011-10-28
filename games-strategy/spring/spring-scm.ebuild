@@ -4,20 +4,15 @@
 # This ebuild come from http://forums.gentoo.org/viewtopic-t-410834.html - The site http://gentoo.zugaina.org/ only host a copy.
 # Small modifications by Ycarus
 
-inherit subversion games eutils toolchain-funcs
+inherit git games eutils toolchain-funcs
 
-ESVN_PROJECT="spring"
-ESVN_REPO_URI="https://taspring.clan-sy.com/svn/spring/trunk"
-MY_PV="0.74b1"
+EGIT_REPO_URI="git://github.com/spring/spring.git"
 DESCRIPTION="Linux port of a futuristic realtime strategy game in full 3d"
-HOMEPAGE="http://taspring-linux.berlios.de/"
-SRC_URI="
-	http://download2.berlios.de/taspring-linux/spring-linux-data-${MY_PV}.tar.bz2
-	http://download.berlios.de/taspring-linux/spring-linux-data-${MY_PV}.tar.bz2
-"
+HOMEPAGE="http://springrts.com/"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
+#~amd64 ~x86"
 IUSE="omni optimize unity-lobby"
 RESTRICT="nomirror"
 

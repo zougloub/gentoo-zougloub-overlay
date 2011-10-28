@@ -1,4 +1,0 @@
-#!/bin/sh
-
-metalog $* 2>&1 | socat - udp-sendto:$NETLOG
-
