@@ -2,29 +2,32 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils toolchain-funcs git
+EAPI=3
+
+inherit eutils toolchain-funcs git-2
 
 DESCRIPTION="X(cross)platform Music Multiplexing System. The new generation of the XMMS player."
 HOMEPAGE="http://xmms2.xmms.org"
 
 EGIT_REPO_URI="git://git.xmms.se/xmms2/xmms2-devel.git"
+EGIT_HAS_SUBMODULES=1
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="aac alsa ao +asx avahi +avcodec +cdda clientonly coreaudio curl +cpp daap
+IUSE="aac alsa ao +asx +avcodec +cdda clientonly coreaudio curl +cpp daap
 +diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
 +nophonehome ofa oss perl python rss ruby samba shout sid speex vorbis wma xml +xspf"
 
 RESTRICT="mirror"
 
 DEPEND="
+ dev-util/cunit
  !clientonly? (
   >=dev-db/sqlite-3.3.4
   aac? ( >=media-libs/faad2-2.0 )
   alsa? ( media-libs/alsa-lib )
   ao? ( media-libs/libao )
-  avahi? ( net-dns/avahi )
   cdda? ( >=media-libs/libdiscid-0.1.1
    >=media-sound/cdparanoia-3.9.8 )
   curl? ( >=net-misc/curl-7.15.1
@@ -61,7 +64,11 @@ RDEPEND="${DEPEND}"
 
 S=${WORKDIR}/${version}
 
-src_compile() {
+src_prepare() {
+	echo
+}
+
+src_configure() {
 	local exc=""
 	local excl_pls=""
 	local excl_opts=""
@@ -69,7 +76,7 @@ src_compile() {
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
 	else
-		for x in avahi cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby ; do
+		for x in cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby ; do
 			use ${x/:*} || excl_opts="${excl_opts},${x/*:}"
 		done
 		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa oss rss samba sid speex vorbis xml xspf ; do
@@ -90,8 +97,10 @@ src_compile() {
 	LINK="$(tc-getCXX) ${LDFLAGS} -fPIC"
 
 	"${S}"/waf --nocache ${options} ${exc} configure || die "Configure failed"
-	# parallel builds are bad with DrJekyll, it will corrupt your pc-files
-	"${S}"/waf build || die "Build failed"
+}
+
+src_compile() {
+	"${S}"/waf || die "Build failed"
 }
 
 src_install() {
