@@ -1,9 +1,9 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=3
 
-inherit git gnome2-utils eutils
+inherit git-2 gnome2-utils eutils
 
 DESCRIPTION="GTK-based collaborative editor"
 HOMEPAGE="http://gobby.0x539.de"

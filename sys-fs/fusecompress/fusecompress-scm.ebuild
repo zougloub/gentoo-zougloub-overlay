@@ -1,4 +1,6 @@
-inherit eutils git
+EAPI=3
+
+inherit eutils git-2
 
 DESCRIPTION="FuseCompress - compresses filesystem"
 HOMEPAGE="http://www.miio.net/fusecompress/"
@@ -7,7 +9,7 @@ EGIT_REPO_URI="git://github.com/tex/fusecompress.git"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE=""
 
 DEPEND="

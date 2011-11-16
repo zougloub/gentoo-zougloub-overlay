@@ -1,12 +1,13 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils git
+EAPI=2
+
+inherit eutils git-2
 
 DESCRIPTION="command line reader for ftrace"
 HOMEPAGE="http://lwn.net/Articles/341902/"
 SRC_URI=""
-EAPI=2
 
 LICENSE="GPL-2"
 SLOT="0"

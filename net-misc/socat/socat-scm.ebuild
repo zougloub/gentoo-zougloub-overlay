@@ -1,9 +1,10 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils git
+EAPI=3
 
-EAPI=2
+inherit eutils git-2
+
 EGIT_PROJECT="socat"
 EGIT_REPO_URI="git://repo.or.cz/socat.git"
 DESCRIPTION="Multipurpose relay : netcat++ (extended design, new implementation)"

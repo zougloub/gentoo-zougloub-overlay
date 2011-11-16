@@ -1,14 +1,14 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils git python
+EAPI=3
+
+inherit eutils git-2 python
 
 DESCRIPTION="A flexible syslog"
 HOMEPAGE="http://zougloub.eu/wiki/perso/dev/epilog"
 EGIT_PROJECT="epilog"
 EGIT_REPO_URI="git://git.zougloub.eu/epilog"
-#EGIT_TREE="cJ"
-#EGIT_BRANCH="cJ"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -18,8 +18,6 @@ IUSE=""
 RDEPEND=""
 DEPEND="${RDEPEND}"
 PROVIDE="virtual/logger"
-
-EAPI="2"
 
 src_install() {
 	dosbin epilog
