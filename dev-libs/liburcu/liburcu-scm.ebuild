@@ -1,7 +1,7 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=3
+EAPI=4
 
 inherit eutils git-2
 
@@ -23,7 +23,7 @@ DEPEND="${RDEPEND}
 "
 
 src_prepare() {
-	default_src_prepare #./autogen.sh || die "Autogen failed"
+	./bootstrap
 }
 
 src_configure() {
@@ -35,18 +35,11 @@ src_compile() {
 }
 
 src_install() {
-	insinto /usr/lib
-	doins liburcu.so
+	default_src_install
+	dodoc README API.txt
+}
 
-	insinto /usr/include/liburcu
-	doins arch.h arch_atomic.h compiler.h urcu.h urcu-static.h
-
-	insinto /usr/libexec/liburcu
-	for file in $(find -type f -executable -regex "^./test.*");
-	do
-		doins $file
-	done
-	doins urcutorture-yield urcutorture
-
-	dodoc README
+src_test() {
+	cd tests
+	./runall.sh
 }
