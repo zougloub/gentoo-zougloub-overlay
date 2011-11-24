@@ -1,7 +1,7 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=2
+EAPI=4
 
 inherit eutils git-2
 
@@ -15,6 +15,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE="+gui +python"
 
 DEPEND="
+ app-text/docbook-xsl-stylesheets
  gui? ( dev-lang/python )
  python? ( dev-lang/python dev-lang/swig )
 "
@@ -28,7 +29,8 @@ src_compile() {
 	if use gui; then
 		target="all gui"
 	fi
-	emake CC="$(tc-getCC)" CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" $target || die
+	emake CC="$(tc-getCC)" CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" \
+	 MANPAGE_DOCBOOK_XSL="/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl" $target
 }
 
 src_install() {
@@ -37,6 +39,6 @@ src_install() {
 		target="install install_gui"
 	fi
 	emake CC="$(tc-getCC)" CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" \
-	 DESTDIR="${D}" prefix="/usr" $target || die
+	 DESTDIR="${D}" prefix="/usr" $target
 }
 
