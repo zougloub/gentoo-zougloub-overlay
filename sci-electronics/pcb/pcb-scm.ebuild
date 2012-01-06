@@ -4,12 +4,11 @@
 
 EAPI=2
 
-inherit fdo-mime git eutils autotools
+inherit fdo-mime git-2 eutils autotools
 
 DESCRIPTION="GPL Electronic Design Automation: Printed Circuit Board editor"
 HOMEPAGE="http://www.gpleda.org/"
 SRC_URI="" #http://geda.seul.org/dist/${P}.tar.gz"
-EGIT_REPO_URI="git://gitorious.org/pcb/pcb.git"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -42,6 +41,8 @@ DEPEND="
  dev-util/pkgconfig
  nls? ( sys-devel/gettext )
 "
+
+EGIT_REPO_URI="git://gitorious.org/pcb/pcb.git"
 
 pkg_setup() {
 	if use gtk && use motif; then
