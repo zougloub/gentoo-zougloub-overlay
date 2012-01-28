@@ -26,8 +26,15 @@ DOCS=( ChangeLog README RELEASE_NOTES TODO )
 
 src_test() { :; } # write access as root outside of sandbox required
 
+SCRIPTS="$(eval echo xdg-{desktop-{menu,icon},mime,icon-resource,open,email,screensaver,settings,su,copy,file-dialog,terminal})"
+
+src_compile() {
+	emake
+	emake -C scripts scripts SCRIPTS="$SCRIPTS"
+}
+
 src_install() {
-	default
+	emake install DESTDIR="$IMAGE" SCRIPTS="$SCRIPTS"
 
 	newdoc scripts/README README.scripts
 	use doc && dohtml -r scripts/html
