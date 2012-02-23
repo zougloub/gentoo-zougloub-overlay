@@ -4,7 +4,7 @@
 
 EAPI=3
 
-inherit git-2 eutils
+inherit git-2
 
 DESCRIPTION="libinfinity is an implementation of the Infinote protocol written in GObject-based C. "
 HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
@@ -34,10 +34,6 @@ DEPEND="${RDEPEND}
 
 EGIT_PROJECT="infinote"
 EGIT_REPO_URI="git://git.0x539.de/git/infinote.git"
-
-src_unpack() {
-	git_src_unpack
-}
 
 src_prepare() {
 	./autogen.sh || die "Autogen failed"
