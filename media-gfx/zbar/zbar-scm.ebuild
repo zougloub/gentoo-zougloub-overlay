@@ -19,7 +19,7 @@ IUSE="gtk +imagemagick +jpeg python qt4 +threads +v4l +v4l2 X +xv +doc"
 DEPEND="
 	gtk? ( =dev-libs/glib-2* =x11-libs/gtk+-2* )
 	imagemagick? ( >=media-gfx/imagemagick-6.2.6 )
-	jpeg? ( >=media-libs/jpeg-6b )
+	jpeg? ( virtual/jpeg )
 	python? (
 		>=dev-lang/python-2.3
 		gtk? ( dev-python/pygtk )

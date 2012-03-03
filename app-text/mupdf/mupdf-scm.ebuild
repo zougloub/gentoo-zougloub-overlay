@@ -17,7 +17,7 @@ IUSE=""
 
 RDEPEND="
  sys-libs/zlib
- media-libs/jpeg
+ virtual/jpeg
  >=media-libs/freetype-2
  media-libs/jbig2dec
  media-libs/openjpeg
