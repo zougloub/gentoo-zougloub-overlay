@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EGIT_REPO_URI="git://projects.reactivated.net/~dsd/fprint_demo.git"
+EAPI=3
 
-inherit git eutils autotools
+inherit git-2 eutils autotools
 
 DESCRIPTION="fprint_demo"
 HOMEPAGE="http://www.reactivated.net/fprint/wiki/Fprint_demo"
@@ -14,6 +14,9 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
+
+EGIT_REPO_URI="git://projects.reactivated.net/~dsd/fprint_demo.git"
+
 
 DEPEND="=media-libs/libfprint-9999
 	>=x11-libs/gtk+-2"

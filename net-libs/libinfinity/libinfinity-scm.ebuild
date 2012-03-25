@@ -2,12 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $ net-libs/libinfinity-scm.ebuild 2008/12/14 05:44:16 cJ Exp $
 
-EAPI=2
+EAPI=3
 
-inherit git eutils
+inherit git-2
 
-EGIT_PROJECT="infinote"
-EGIT_REPO_URI="git://git.0x539.de/git/infinote.git"
 DESCRIPTION="libinfinity is an implementation of the Infinote protocol written in GObject-based C. "
 HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
 LICENSE="GPL-2"
@@ -34,9 +32,8 @@ DEPEND="${RDEPEND}
  doc? ( dev-util/gtk-doc )
 "
 
-src_unpack() {
-	git_src_unpack
-}
+EGIT_PROJECT="infinote"
+EGIT_REPO_URI="git://git.0x539.de/git/infinote.git"
 
 src_prepare() {
 	./autogen.sh || die "Autogen failed"
