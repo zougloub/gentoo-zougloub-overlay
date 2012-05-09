@@ -19,10 +19,10 @@ EGIT_COMMIT="gobby-infinote"
 EGIT_BRANCH="gobby-infinote"
 
 RDEPEND="
- =net-libs/libinfinity-scm
+ =net-libs/libinfinity-9999
  dev-cpp/glibmm:2
- >=dev-cpp/gtkmm-2.6
- >=x11-libs/gtksourceview-2.0
+ dev-cpp/gtkmm:2.4
+ x11-libs/gtksourceview:2.0
  >=dev-libs/libsigc++-2.0
  >=dev-cpp/libxmlpp-2.6
 "

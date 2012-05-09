@@ -11,7 +11,7 @@ HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+gtk +server +avahi doc static-libs"
+IUSE="+gtk +server avahi doc static-libs"
 RESTRICT="nomirror"
 
 RDEPEND="
@@ -24,8 +24,7 @@ RDEPEND="
  >=dev-libs/libsigc++-2.0
  >=dev-cpp/libxmlpp-2.6
  avahi? ( net-dns/avahi )
- gtk? ( >=dev-cpp/gtkmm-2.6 >=x11-libs/gtksourceview-2.0 )
- gnome? ( gnome-base/gnome-vfs )
+ gtk? ( dev-cpp/gtkmm:2.4 x11-libs/gtksourceview:2.0 )
 "
 
 DEPEND="${RDEPEND}
