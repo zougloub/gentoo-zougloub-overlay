@@ -15,7 +15,7 @@ EGIT_COMMIT="master"
 
 LICENSE="as-is"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS=""
 IUSE="alsa +cxx debug jack oss static-libs"
 
 RDEPEND="alsa? ( media-libs/alsa-lib )
