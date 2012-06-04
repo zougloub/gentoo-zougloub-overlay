@@ -5,7 +5,7 @@ inherit eutils
 
 DESCRIPTION="Provides the pthreads API on windows"
 HOMEPAGE="http://sourceware.org/pthreads-win32/"
-SRC_URI="ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz"
+SRC_URI="ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.tar.gz"
 
 
 LICENSE="GPL-2"
