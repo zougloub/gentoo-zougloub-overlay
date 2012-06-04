@@ -4,7 +4,7 @@
 
 EAPI=3
 
-inherit eutils toolchain-funcs git-2
+inherit eutils toolchain-funcs waf-utils git-2
 
 DESCRIPTION="X(cross)platform Music Multiplexing System. The new generation of the XMMS player."
 HOMEPAGE="http://xmms2.xmms.org"
@@ -17,7 +17,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="aac alsa ao +asx +avcodec +cdda clientonly coreaudio curl +cpp daap
 +diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
-+nophonehome ofa oss perl python rss ruby samba shout sid speex vorbis wma xml +xspf"
++nophonehome ofa oss perl python rss ruby samba shout sid speex test vorbis wma xml +xspf"
 
 RESTRICT="mirror"
 
@@ -76,7 +76,7 @@ src_configure() {
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
 	else
-		for x in cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby ; do
+		for x in cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby test:tests ; do
 			use ${x/:*} || excl_opts="${excl_opts},${x/*:}"
 		done
 		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa oss rss samba sid speex vorbis xml xspf ; do
@@ -96,15 +96,11 @@ src_configure() {
 	CXX="$(tc-getCXX) ${CXXFLAGS} -fPIC" \
 	LINK="$(tc-getCXX) ${LDFLAGS} -fPIC"
 
-	"${S}"/waf --nocache ${options} ${exc} configure || die "Configure failed"
-}
-
-src_compile() {
-	"${S}"/waf || die "Build failed"
+	waf-utils_src_configure $options $exc
 }
 
 src_install() {
-	"${S}"/waf --destdir="${D}" install || die
+	waf-utils_src_install || die
 	dodoc AUTHORS TODO README
 }
 
