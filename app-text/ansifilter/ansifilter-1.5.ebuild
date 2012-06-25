@@ -1,6 +1,8 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
+
 inherit eutils
 
 DESCRIPTION="Converts ANSI terminal sequences to HTML or RTF"
@@ -10,7 +12,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
 IUSE="+gui"
-EAPI=2
 
 RDEPEND="
  gui? ( x11-libs/qt-gui )
