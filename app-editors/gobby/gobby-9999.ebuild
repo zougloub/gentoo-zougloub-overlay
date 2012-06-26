@@ -9,7 +9,7 @@ DESCRIPTION="GTK-based collaborative editor"
 HOMEPAGE="http://gobby.0x539.de"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
-IUSE="gnome doc +nls"
+IUSE="avahi gnome doc +nls"
 RESTRICT="nomirror"
 SLOT="0.5"
 
@@ -19,7 +19,7 @@ EGIT_COMMIT="gobby-infinote"
 EGIT_BRANCH="gobby-infinote"
 
 RDEPEND="
- =net-libs/libinfinity-9999
+ =net-libs/libinfinity-9999[avahi=]
  dev-cpp/glibmm:2
  dev-cpp/gtkmm:2.4
  x11-libs/gtksourceview:2.0

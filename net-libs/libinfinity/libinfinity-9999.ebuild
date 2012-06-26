@@ -23,7 +23,7 @@ RDEPEND="
  dev-libs/libgpg-error
  >=dev-libs/libsigc++-2.0
  >=dev-cpp/libxmlpp-2.6
- avahi? ( net-dns/avahi )
+ avahi? ( net-dns/avahi[gtk?] )
  gtk? ( dev-cpp/gtkmm:2.4 x11-libs/gtksourceview:2.0 )
 "
 
