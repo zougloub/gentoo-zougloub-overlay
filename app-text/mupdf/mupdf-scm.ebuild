@@ -1,7 +1,7 @@
-EAPI="3"
+
+EAPI=3
 
 inherit git-2
-
 
 DESCRIPTION="a lightweight PDF viewer and toolkit written in portable C"
 HOMEPAGE="http://mupdf.googlecode.com/"
@@ -26,10 +26,6 @@ RDEPEND="
 DEPEND="
  ${RDEPEND}
 "
-
-src_compile() {
-	emake
-}
 
 src_install() {
 	dodoc COPYING README || die "Could not create documents"
