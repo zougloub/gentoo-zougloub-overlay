@@ -1,6 +1,8 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI="3"
+
 inherit distutils
 
 DESCRIPTION="NXT_Python is a package for controlling a LEGO NXT robot using the Python programming language"
@@ -9,7 +11,6 @@ SRC_URI="http://home.comcast.net/~dplau/nxt_python/download/${P}.tar.gz"
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64"
 SLOT="0"
-EAPI="2"
 IUSE="-bluetooth +usb"
 
 RDEPEND="
@@ -28,3 +29,4 @@ src_install() {
 	doins examples/*
 	eend $?
 }
+
