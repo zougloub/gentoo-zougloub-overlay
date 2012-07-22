@@ -15,10 +15,9 @@ DEPEND="${RDEPEND}
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
+ESVN_REPO_URI="https://ptpd.svn.sourceforge.net/svnroot/ptpd/trunk"
 
-ESVN_REPO_URI="https://svn.sourceforge.net/svnroot/${PN}/trunk"
-
-S="${WORKDIR}/${PN}-1rc1"
+S="${WORKDIR}/${PN}"
 
 src_compile() {
 	cd src
@@ -27,8 +26,8 @@ src_compile() {
 
 src_install() {
 	dodoc README RELEASE_NOTES doc/*
+	dodoc -r tools
 	doman src/ptpd.8 || die "Could not doman"
 	dobin src/ptpd || die "Could not dobin"
-
 }
 

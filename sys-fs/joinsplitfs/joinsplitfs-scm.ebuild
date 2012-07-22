@@ -1,6 +1,8 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
+
 inherit subversion eutils
 
 DESCRIPTION="Two virtual FUSE filesystems to join or split files."
@@ -19,7 +21,6 @@ DEPEND="
 KEYWORDS="~amd64 ~x86"
 SLOT="0"
 IUSE=""
-EAPI=2
 
 ESVN_REPO_URI="https://${PN}.svn.sourceforge.net/svnroot/${PN}/trunk"
 
