@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=2
+
 DESCRIPTION="Objective Caml parser generator"
 HOMEPAGE="http://gallium.inria.fr/~fpottier/menhir/"
 SRC_URI="http://gallium.inria.fr/~fpottier/menhir/${P}.tar.gz"
@@ -11,7 +13,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86"
 IUSE=""
-EAPI=2
 
 RDEPEND="
  dev-lang/ocaml
