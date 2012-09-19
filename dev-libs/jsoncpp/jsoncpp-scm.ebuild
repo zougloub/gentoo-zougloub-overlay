@@ -28,7 +28,21 @@ src_configure() {
 }
 
 src_compile() {
-	einfo "The jsoncpp build system is old, we build manually..."
+	einfo "The jsoncpp build system and sources are messed up, we build manually..."
+	ebegin "[PATCH] everything"
+	sed -i -e 's/<json\//<jsoncpp\//' src/lib_json/*
+	sed -i -e 's/<json\/config.h>/"jsoncpp\/config.h"/' include/json/*
+	for x in features config forwards value autolink reader writer;
+	do
+		sed -i -e "s/\"${x}.h\"/\"jsoncpp\/${x}.h\"/" include/json/*
+	done
+	#sed -i -e 's/"value.h"/jsoncpp\/value.h/' include/json/*
+	#for file in config.h features.h;
+	#do
+	#	mv include/json/$file include/json/jsoncpp-$file
+	#done
+	mv include/json include/jsoncpp
+	eend $?
 	CXX="$(tc-getCXX)"
 	for file in src/lib_json/*.cpp;
 	do
