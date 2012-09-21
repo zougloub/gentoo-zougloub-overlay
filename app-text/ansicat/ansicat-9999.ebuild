@@ -21,6 +21,6 @@ RESTRICT="primaryuri"
 EGIT_REPO_URI="git://gitorious.org/ansicat/ansicat.git"
 
 src_install() {
-	dobin ansicat ansi2html
+	dobin ansi*
 }
 
