@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+EAPI=3
+
 inherit eutils git
 
 EGIT_REPO_URI="git://github.com/Dieterbe/uzbl.git"
@@ -10,7 +12,6 @@ EGIT_BRANCH="experimental"
 DESCRIPTION="Uzbl: A UZaBLe Keyboard-controlled Lightweight Webkit-based Web Browser"
 HOMEPAGE="http://www.uzbl.org/"
 SRC_URI=""
-EAPI=3
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"

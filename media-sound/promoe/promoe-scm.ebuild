@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=1
+EAPI=5
 
-inherit eutils qt4 git
+inherit eutils qt4-r2 git
 
 DESCRIPTION="WinAmp2 skinnable frontend for XMMS2"
 HOMEPAGE="http://wiki.xmms2.xmms.se/wiki/Client:Promoe"
@@ -17,7 +17,6 @@ KEYWORDS=""
 IUSE=""
 
 DEPEND="
- || ( >=x11-libs/qt-4.2.0 x11-libs/qt-gui:4.4 )
  >=media-sound/xmms2-0.4
 "
 RDEPEND="${DEPEND}"

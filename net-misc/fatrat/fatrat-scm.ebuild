@@ -4,7 +4,7 @@
 
 EAPI=3
 
-inherit cmake-utils eutils qt4 git
+inherit cmake-utils eutils qt4-r2 git
 
 EGIT_REPO_URI="git://git.dolezel.info/fatrat.git"
 DESCRIPTION="Qt4-based download/upload manager"
@@ -36,7 +36,7 @@ DEPEND="
 S="${WORKDIR}/${PN}"
 
 pkg_setup() {
-	qt4_pkg_setup
+	qt4-r2_pkg_setup
 	if ! has_version dev-libs/geoip; then
 		einfo "If you want the GeoIP support, then emerge dev-libs/geoip."
 		einfo "Then GeoIP support will be available in the software"

@@ -1,12 +1,13 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
+
 inherit eutils
 
 DESCRIPTION="Moose Distributed File System"
 HOMEPAGE="http://www.moosefs.org/"
 SRC_URI="http://moosefs.org/tl_files/mfscode/mfs-${PV}.tar.gz"
-EAPI=2
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~sparc ~x86"

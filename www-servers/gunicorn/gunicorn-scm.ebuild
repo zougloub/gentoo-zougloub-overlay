@@ -1,7 +1,7 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=3
+EAPI=5
 
 inherit python git-2 distutils
 
@@ -11,7 +11,6 @@ SRC_URI=""
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64"
 SLOT="0"
-EAPI="2"
 IUSE=""
 EGIT_REPO_URI="git://github.com/benoitc/gunicorn.git"
 

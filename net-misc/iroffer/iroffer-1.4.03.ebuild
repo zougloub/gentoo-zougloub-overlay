@@ -1,9 +1,9 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-inherit eutils versionator
+EAPI=5
 
-EAPI=2
+inherit eutils versionator
 
 # iroffer uses irofferX.Y.bZ.tgz
 MY_PV=$( replace_version_separator 2 '.b' )
@@ -36,3 +36,4 @@ src_install() {
 	use chroot && dobin iroffer_chroot
 	dodoc COPYING README WHATSNEW sample.config dynip.sh iroffer.cron
 }
+

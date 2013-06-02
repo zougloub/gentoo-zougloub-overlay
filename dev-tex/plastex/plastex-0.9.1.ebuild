@@ -1,5 +1,7 @@
-7# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+
+EAPI="2"
 
 inherit distutils
 
@@ -9,7 +11,6 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tgz"
 LICENSE="GPL-2"
 KEYWORDS="~x86 ~amd64"
 SLOT="0"
-EAPI="2"
 IUSE=""
 
 RDEPEND=""

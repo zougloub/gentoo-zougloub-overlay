@@ -1,9 +1,10 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+EAPI=2
+
 inherit eutils git
 
-EAPI=2
 EGIT_PROJECT="icmptx"
 EGIT_REPO_URI="git://github.com/jakkarth/icmptx.git"
 DESCRIPTION="IP-over-ICMP tunnel"

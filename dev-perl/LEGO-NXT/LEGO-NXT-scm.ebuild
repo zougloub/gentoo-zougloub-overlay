@@ -1,3 +1,6 @@
+
+EAPI=2
+
 inherit eutils perl-module subversion
 
 DESCRIPTION=""
@@ -7,7 +10,6 @@ LICENSE="GPL-2"
 KEYWORDS="~x86"
 SLOT="0"
 IUSE="usb bluetooth"
-EAPI=2
 
 RDEPEND="
  usb? ( dev-perl/Device-USB )
