@@ -41,7 +41,7 @@ IUSE_SIGROK_DRIVERS=(
 )
 
 DEPEND="
- dev-libs/libusb:1
+ virtual/libusb:1
 "
 
 RDEPEND="$DEPEND"
