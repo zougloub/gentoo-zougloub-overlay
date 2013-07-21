@@ -24,7 +24,7 @@ DEPEND="
 		>=dev-lang/python-2.3
 		gtk? ( dev-python/pygtk )
 	)
-	qt4? ( x11-libs/qt-core x11-libs/qt-gui )
+	qt4? ( dev-qt/qtcore:4 dev-qt/qtgui:4 )
 	X? (
 		x11-libs/libXext
 		xv? ( x11-libs/libXv )

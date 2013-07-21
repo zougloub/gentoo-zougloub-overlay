@@ -16,7 +16,7 @@ SLOT="0"
 IUSE=""
 RDEPEND="
  dev-python/PyQt4
- x11-libs/qt-webkit
+ dev-qt/qtwebkit:4
 "
 
 src_install() {

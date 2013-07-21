@@ -17,16 +17,16 @@ KEYWORDS="~amd64 ~x86"
 IUSE="+bittorrent +curl -debug doc jabber nls webinterface"
 
 RDEPEND="
- ( x11-libs/qt-gui[dbus] x11-libs/qt-core[ssl] )
+ ( dev-qt/qtgui:4[dbus] dev-qt/qtcore:4[ssl] )
  bittorrent?
  (
   >=net-libs/rb_libtorrent-0.13_pre1683
-  x11-libs/qt-webkit
+  dev-qt/qtwebkit:4
  )
  curl? ( net-misc/curl )
- doc? ( x11-libs/qt-assistant )
+ doc? ( dev-qt/qtassistant:4 )
  jabber? ( net-libs/gloox )
- webinterface? ( x11-libs/qt-webkit )
+ webinterface? ( dev-qt/qtwebkit:4 )
 "
 DEPEND="
  >=dev-util/cmake-2.6.0

@@ -33,8 +33,8 @@ DEPEND=">=dev-libs/boost-1.34
 	>=net-libs/libeXosip-3
 	net-misc/curl
 	|| ( x11-libs/libX11 virtual/x11 )
-	x11-libs/qt-gui
-	x11-libs/qt-svg
+	dev-qt/qtgui:4
+	dev-qt/qtsvg:4
 	xv? ( x11-libs/libXv )"
 RDEPEND="${DEPEND}"
 
