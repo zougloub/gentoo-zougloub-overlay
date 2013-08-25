@@ -1,0 +1,128 @@
+Author: Jérôme Carretero <cJ@zougloub.eu>
+Date:   Sun Aug 25 18:03:40 2013 -0400
+
+    add search path feature for includes, tables, images...
+
+--- a/docutils/frontend.py
++++ b/docutils/frontend.py
+@@ -375,6 +375,10 @@ class OptionParser(optparse.OptionParser, docutils.SettingsSpec):
+          ('Do not include a datestamp of any kind.',
+           ['--no-datestamp'], {'action': 'store_const', 'const': None,
+                                'dest': 'datestamp'}),
++         ('Include this folder to the external file search path' \
++          '(Multiple-use option.)',
++          ['--include-path'],
++          {'action': 'append', 'dest': 'search_paths', 'default': ['.']}),
+          ('Include a "View document source" link.',
+           ['--source-link', '-s'], {'action': 'store_true',
+                                     'validator': validate_boolean}),
+--- a/docutils/parsers/rst/directives/images.py
++++ b/docutils/parsers/rst/directives/images.py
+@@ -9,7 +9,7 @@ Directives for figures and simple images.
+ __docformat__ = 'reStructuredText'
+ 
+ 
+-import sys
++import sys, os
+ import urllib
+ from docutils import nodes, utils
+ from docutils.parsers.rst import Directive
+@@ -68,7 +68,21 @@ class Image(Directive):
+                     % (self.name, self.options['align'],
+                        '", "'.join(self.align_h_values)))
+         messages = []
+-        reference = directives.uri(self.arguments[0])
++
++        # Look for files relative to the source directory
++        # or cwd (or other; ['.'] is the default setting for the search paths)
++        source = self.state_machine.input_lines.source(
++            self.lineno - self.state_machine.input_offset - 1)
++        source_dir = os.path.dirname(os.path.abspath(source))
++        path = self.arguments[0]
++        for folder in [source_dir] + self.state.document.settings.search_paths:
++            folder = os.path.realpath(folder)
++            filepath = os.path.join(folder, path)
++            if os.path.exists(filepath):
++                path = filepath
++                break
++
++        reference = directives.uri(path)
+         self.options['uri'] = reference
+         reference_node = None
+         if 'target' in self.options:
+--- a/docutils/parsers/rst/directives/misc.py
++++ b/docutils/parsers/rst/directives/misc.py
+@@ -58,9 +58,26 @@ class Include(Directive):
+             self.lineno - self.state_machine.input_offset - 1)
+         source_dir = os.path.dirname(os.path.abspath(source))
+         path = directives.path(self.arguments[0])
+-        if path.startswith('<') and path.endswith('>'):
+-            path = os.path.join(self.standard_include_path, path[1:-1])
+-        path = os.path.normpath(os.path.join(source_dir, path))
++
++        path_resolved = None
++
++        # Look for files relative to the source directory
++        # or cwd (or other; ['.'] is the default setting for the search paths)
++        for folder in [source_dir] + self.state.document.settings.search_paths:
++            folder = os.path.realpath(folder)
++            filepath = os.path.join(folder, path)
++            if os.path.exists(filepath):
++                path_resolved = filepath
++                break
++        if path_resolved is None:
++            if path.startswith('<') and path.endswith('>'):
++                path = os.path.join(self.standard_include_path, path[1:-1])
++                if os.path.exists(path):
++                    path_resolved = path
++        if path_resolved is None:
++            raise self.warning("Cannot find include %s" % path)
++
++        path = path_resolved
+         path = utils.relative_path(None, path)
+         path = nodes.reprunicode(path)
+         encoding = self.options.get(
+@@ -200,9 +217,18 @@ class Raw(Directive):
+                     'specified for the "%s" directive.' % self.name)
+             source_dir = os.path.dirname(
+                 os.path.abspath(self.state.document.current_source))
+-            path = os.path.normpath(os.path.join(source_dir,
+-                                                 self.options['file']))
+-            path = utils.relative_path(None, path)
++
++            source = self.options['file']
++            # Look for files relative to the source directory
++            # or cwd (or other; ['.'] is the default setting for the search paths)
++            for folder in [source_dir] + self.state.document.settings.search_paths:
++                folder = os.path.realpath(folder)
++                filepath = os.path.join(folder, source)
++                if os.path.exists(filepath):
++                    source = filepath
++                    break
++
++            path = utils.relative_path(None, source)
+             try:
+                 raw_file = io.FileInput(source_path=path,
+                                         encoding=encoding,
+--- a/docutils/parsers/rst/directives/tables.py
++++ b/docutils/parsers/rst/directives/tables.py
+@@ -268,8 +268,17 @@ class CSVTable(Table):
+                 raise SystemMessagePropagation(error)
+             source_dir = os.path.dirname(
+                 os.path.abspath(self.state.document.current_source))
+-            source = os.path.normpath(os.path.join(source_dir,
+-                                                   self.options['file']))
++
++            source = self.options['file']
++            # Look for files relative to the source directory
++            # or cwd (or other; ['.'] is the default setting for the search paths)
++            for folder in [source_dir] + self.state.document.settings.search_paths:
++                folder = os.path.realpath(folder)
++                filepath = os.path.join(folder, source)
++                if os.path.exists(filepath):
++                    source = filepath
++                    break
++
+             source = utils.relative_path(None, source)
+             try:
+                 self.state.document.settings.record_dependencies.add(source)
