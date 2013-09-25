@@ -7,8 +7,6 @@ PYTHON_COMPAT=( python{2_5,2_6,2_7} pypy{1_9,2_0} )
 DESCRIPTION="Python bindings to JIRA"
 HOMEPAGE="http://jira-python.readthedocs.org"
 SRC_URI=""
-#S="$WORKDIR/$MY_PN-$PV"
-
 EGIT_REPO_URI="https://bitbucket.org/bspeakmon/jira-python.git"
 
 LICENSE="BSD"
@@ -29,10 +27,6 @@ python_prepare_all() {
 }
 
 python_install_all() {
-	#local HTML_DOCS=( HISTORY.html xlwt/doc/xlwt.html )
 	use examples && local EXAMPLES=( examples )
 	distutils-r1_python_install_all
-
-	#dodoc -r tests
-	#docompress -x /usr/share/doc/${PF}/tests
 }
