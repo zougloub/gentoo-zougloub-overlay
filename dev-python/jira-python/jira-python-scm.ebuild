@@ -14,11 +14,18 @@ SLOT="0"
 KEYWORDS="amd64 ~arm ppc ~ppc64 x86 ~amd64 ~amd64-linux ~x86-linux"
 IUSE="examples"
 
+# tlslite is for jirashell
+RDEPEND="
+ >=dev-python/tlslite-0.4
+ >=dev-python/requests-1.0.0
+ >=dev-python/oauthlib-0.5
+ >=dev-python/requests-oauthlib-0.3.0
+"
+
 inherit distutils-r1 git
 
 src_prepare() {
 	einfo "Don't install documentation and examples in site-packages"
-	#sed -e "/packages/,+1d" -i setup.py || die
 	rm -rf tests tools || die
 }
 
