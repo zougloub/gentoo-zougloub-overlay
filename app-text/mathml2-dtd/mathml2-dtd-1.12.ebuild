@@ -8,10 +8,7 @@ inherit eutils
 
 DESCRIPTION="MathML2 Module DTD"
 HOMEPAGE=""
-SRC_URI="
- http://www.w3.org/TR/MathML2/dtd/mathml2.dtd -> mathml2-xxx.dtd
-"
-RESTRICT="primaryuri"
+SRC_URI=""
 
 LICENSE=""
 SLOT="0"
@@ -23,26 +20,25 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}"
-
-src_unpack() {
-	cp ${DISTDIR}/mathml2-xxx.dtd ${S}/mathml2.dtd || die
-}
+RESTRICT=primaryuri
+SRC_URI="http://www.w3.org/Math/DTD/mathml2.tgz -> ${P}.tgz"
+S="$WORKDIR/mathml2"
 
 src_install() {
 	insinto /usr/share/xml/mathml2-dtd
-	doins mathml2.dtd
+	doins -r *
+	return
+	for file in $files;
+	do
+		doins $file
+	done
 }
 
 pkg_postinst() {
 	ebegin "Installing XML catalog entries"
 	xmlcatalog --noout --add public \
-	 "-//W3C//DTD MathML 2.0//EN" \
-	 "file:///usr/share/xml/mathml2-dtd/mathml2.dtd" \
-	 /etc/xml/catalog || die
-	xmlcatalog --noout --add system \
-	 "http://www.w3.org/TR/MathML2/dtd/mathml2.dtd" \
-	 "file:///usr/share/xml/mathml2-dtd/mathml2.dtd" \
+	 "-//W3C//ENTITIES MathML 2.0 Qualified Names 1.0//EN" \
+	 "file:///usr/share/xml/mathml2-dtd/mathml2-qname-1.mod" \
 	 /etc/xml/catalog || die
 	eend 0
 }
