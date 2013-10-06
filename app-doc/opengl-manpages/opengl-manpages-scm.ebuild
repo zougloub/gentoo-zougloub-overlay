@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit subversion
+inherit multiprocessing subversion
 
 DESCRIPTION="OpenGL man pages"
 HOMEPAGE="http://www.opengl.org/wiki/Getting_started/XML_Toolchain_and_Man_Pages"
@@ -21,6 +21,7 @@ KEYWORDS="~amd64"
 IUSE=""
 
 DEPEND="
+ >=sys-process/parallel-20130101
  >=app-text/dbmathml-1.0
  >=dev-libs/libxlst-1.0.0
 "
@@ -36,24 +37,25 @@ src_unpack() {
 	done
 }
 
-src_configure() {
-	:
-}
-
 src_compile() {
 	for repo in man4 man3 man2 manglsl;
 	do
 		mkdir $repo
 		pushd $repo
-		for file in ${ESVN_STORE_DIR}/${ESVN_PROJECT}/$repo/gl*.xml;
-		do
-			xsltproc --noout --nonet ${ROOT}/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl $file
-		done
+		parallel --jobs=$(makeopts_jobs) \
+		 xsltproc --noout --nonet \
+		  ${ROOT}/usr/share/sgml/docbook/xsl-stylesheets/manpages/docbook.xsl {1} \
+		 ::: ${ESVN_STORE_DIR}/${ESVN_PROJECT}/$repo/gl*.xml
 		popd
 	done
 }
 
 src_install() {
-	doman -r man4 man3 man2 manglsl
+	for repo in man4 man3 man2 manglsl;
+	do
+		pushd $repo
+		doman *
+		popd
+	done
 }
 
