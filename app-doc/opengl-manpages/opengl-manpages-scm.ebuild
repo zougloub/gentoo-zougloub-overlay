@@ -15,7 +15,7 @@ ESVN_PASSWORD="anonymous"
 ESVN_PROJECT="opengl-manpages"
 ESVN_RESTRICT="export"
 
-LICENSE=""
+LICENSE="FreeB"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
