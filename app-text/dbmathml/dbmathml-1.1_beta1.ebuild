@@ -8,7 +8,9 @@ inherit eutils
 
 DESCRIPTION="The Docbook MathML Module V1.1b1 DTD adds MathML 2.0 to Docbook 4.3"
 HOMEPAGE=""
-SRC_URI="http://www.docbook.org/xml/mathml/1.1CR1/dbmathml.dtd -> dbmathml-1.1CR1.dtd"
+SRC_URI="
+ http://www.docbook.org/xml/mathml/1.1CR1/dbmathml.dtd -> dbmathml-1.1CR1.dtd
+"
 RESTRICT="primaryuri"
 
 LICENSE=""
@@ -17,6 +19,7 @@ KEYWORDS="~amd64"
 IUSE=""
 
 DEPEND="
+ >=app-text/mathml2-dtd-1.12
  >=dev-libs/libxml2-2.8.0
 "
 RDEPEND="${DEPEND}"
