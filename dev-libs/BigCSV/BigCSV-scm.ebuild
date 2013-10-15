@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=2
+EAPI=5
 
 EGIT_REPO_URI="git://git.zougloub.eu/BigCSV"
-inherit eutils git
+inherit eutils git-2
 
 DESCRIPTION="A library designed for handling big CSV data files"
-HOMEPAGE="http://cJ.is-a-geek.org/wiki/perso/dev/bigcsv/"
+HOMEPAGE="http://zougloub.eu/wiki/perso/dev/bigcsv/"
 SRC_URI=""
 
 LICENSE="GPL-3"
