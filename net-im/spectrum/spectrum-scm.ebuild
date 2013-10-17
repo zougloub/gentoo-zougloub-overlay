@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI=5
 
-inherit cmake-utils git
+inherit cmake-utils git-2
 
 DESCRIPTION="A new xmpp transport based on libpurple"
 HOMEPAGE="http://spectrum.im"
@@ -18,17 +18,21 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-RDEPEND="dev-libs/poco[sqlite]
-	>=net-im/pidgin-2.6.0
-	>=net-libs/gloox-1.0
-	dev-libs/libev
-	|| (
-		dev-libs/poco[mysql]
-		dev-libs/poco[sqlite]
-	)"
-DEPEND="${RDEPEND}
-	dev-python/xmpppy
-	sys-devel/gettext"
+RDEPEND="
+ >=net-im/pidgin-2.6.0
+ >=net-libs/gloox-1.0
+ dev-libs/libev
+ || (
+  dev-libs/poco[mysql]
+  dev-libs/poco[sqlite]
+ )
+"
+
+DEPEND="
+ ${RDEPEND}
+ dev-python/xmpppy
+ sys-devel/gettext
+"
 
 src_install () {
 	cmake-utils_src_install
@@ -43,3 +47,4 @@ src_install () {
 		doinitd "${WORKDIR}/spectrum-${protocol}" || die
 	done
 }
+
