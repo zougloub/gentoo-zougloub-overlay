@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+EAPI=5
 
 inherit eutils toolchain-funcs waf-utils git-2
 
@@ -15,7 +15,7 @@ EGIT_HAS_SUBMODULES=1
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="aac alsa ao +asx +avcodec +cdda clientonly coreaudio curl +cpp daap
+IUSE="aac alsa ao +asx +avcodec cdda clientonly coreaudio curl +cpp daap
 +diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
 +nophonehome ofa oss perl python rss ruby samba shout sid speex test vorbis wma xml +xspf"
 
