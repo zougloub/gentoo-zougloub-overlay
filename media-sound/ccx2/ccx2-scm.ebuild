@@ -3,7 +3,7 @@
 
 EAPI=5
 
-inherit distutils git-2
+PYTHON_COMPAT=( python{2_5,2_6,2_7} pypy{1_9,2_0} )
 
 DESCRIPTION="console client for the xmms2 music player"
 HOMEPAGE="http://palbo.github.com/ccx2/"
@@ -23,4 +23,6 @@ RDEPEND="
 DEPEND="
  $RDEPEND
 "
+
+inherit distutils-r1 git-r3
 

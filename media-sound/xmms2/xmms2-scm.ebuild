@@ -4,13 +4,12 @@
 
 EAPI=5
 
-inherit eutils toolchain-funcs waf-utils git-2
+inherit eutils toolchain-funcs waf-utils git-r3
 
 DESCRIPTION="X(cross)platform Music Multiplexing System. The new generation of the XMMS player."
 HOMEPAGE="http://xmms2.xmms.org"
 
-EGIT_REPO_URI="git://git.xmms.se/xmms2/xmms2-devel.git"
-EGIT_HAS_SUBMODULES=1
+EGIT_REPO_URI="git://git.xmms2.org/xmms2/xmms2-devel.git"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
@@ -62,7 +61,7 @@ DEPEND="
 
 RDEPEND="${DEPEND}"
 
-S=${WORKDIR}/${version}
+#S="${WORKDIR}/${P}"
 
 src_prepare() {
 	echo
@@ -92,9 +91,12 @@ src_configure() {
 	then
 		options="${options} --without-optionals=${excl_opts:1}"
 	fi
-	CC="$(tc-getCC) ${CFLAGS} -fPIC" \
-	CXX="$(tc-getCXX) ${CXXFLAGS} -fPIC" \
-	LINK="$(tc-getCXX) ${LDFLAGS} -fPIC"
+
+	export \
+	 CC="$(tc-getCC) ${CFLAGS} -fPIC" \
+	 CXX="$(tc-getCXX) ${CXXFLAGS} -fPIC" \
+	 LINK="$(tc-getCXX) ${LDFLAGS} -fPIC" \
+	 PYTHON=python2
 
 	waf-utils_src_configure $options $exc
 }
