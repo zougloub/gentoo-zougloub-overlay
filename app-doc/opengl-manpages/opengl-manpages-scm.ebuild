@@ -23,7 +23,7 @@ IUSE=""
 DEPEND="
  >=sys-process/parallel-20130101
  >=app-text/dbmathml-1.0
- >=dev-libs/libxlst-1.0.0
+ >=dev-libs/libxslt-1.0.0
 "
 RDEPEND="${DEPEND}"
 
