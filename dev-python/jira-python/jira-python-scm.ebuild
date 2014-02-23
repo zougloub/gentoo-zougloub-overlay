@@ -10,7 +10,7 @@ SRC_URI=""
 EGIT_REPO_URI="https://bitbucket.org/bspeakmon/jira-python.git"
 
 LICENSE="BSD"
-SLOT="0"
+SLOT=0
 KEYWORDS="amd64 ~arm ppc ~ppc64 x86 ~amd64 ~amd64-linux ~x86-linux"
 IUSE="examples"
 
@@ -22,7 +22,7 @@ RDEPEND="
  >=dev-python/requests-oauthlib-0.3.0
 "
 
-inherit distutils-r1 git
+inherit distutils-r1 git-r3
 
 src_prepare() {
 	einfo "Don't install documentation and examples in site-packages"
