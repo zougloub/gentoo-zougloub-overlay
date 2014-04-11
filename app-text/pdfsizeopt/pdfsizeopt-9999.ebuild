@@ -37,5 +37,9 @@ src_test() {
 
 src_install() {
 	dobin pdfsizeopt.single
+	ewarn "As of now, you need to invoke the program with"
+	ewarn " pdfsizeopt.single --use-pngout=false --use-multivalent=no <file>"
+	ewarn "Because pdfsizeopt is not distribution-friendly..."
+	ewarn "... and we miss Multivalent.jar and pngout"
 }
 
