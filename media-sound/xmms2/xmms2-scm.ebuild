@@ -27,15 +27,20 @@ DEPEND="
   aac? ( >=media-libs/faad2-2.0 )
   alsa? ( media-libs/alsa-lib )
   ao? ( media-libs/libao )
-  cdda? ( >=media-libs/libdiscid-0.1.1
-   >=media-sound/cdparanoia-3.9.8 )
-  curl? ( >=net-misc/curl-7.15.1
-     !=net-misc/curl-7.16.1
-     !=net-misc/curl-7.16.2 )
+  cdda? (
+   >=media-libs/libdiscid-0.1.1
+   >=media-sound/cdparanoia-3.9.8
+  )
+  curl? (
+   >=net-misc/curl-7.15.1
+   !=net-misc/curl-7.16.1
+   !=net-misc/curl-7.16.2
+  )
   flac? ( media-libs/flac )
   jack? ( >=media-sound/jack-audio-connection-kit-0.101.1 )
   mms? ( media-video/ffmpeg
-   >=media-libs/libmms-0.3 )
+   >=media-libs/libmms-0.3
+  )
   modplug? ( media-libs/libmodplug )
   mp3? ( media-sound/madplay )
   mp4? ( media-video/ffmpeg )
@@ -43,11 +48,13 @@ DEPEND="
   rss? ( dev-libs/libxml2 )
   samba? ( net-fs/samba )
   sid? ( media-sound/sidplay
-   media-libs/resid )
+   media-libs/resid
+  )
   speex? ( media-libs/speex )
   vorbis? ( media-libs/libvorbis )
   xml? ( dev-libs/libxml2 )
-  xspf? ( dev-libs/libxml2 ) )
+  xspf? ( dev-libs/libxml2 )
+ )
  >=dev-lang/python-2.4.3
  >=dev-libs/glib-2.12.9
  cpp? ( >=dev-libs/boost-1.32 )
@@ -61,16 +68,15 @@ DEPEND="
 
 RDEPEND="${DEPEND}"
 
-#S="${WORKDIR}/${P}"
-
 src_prepare() {
-	echo
+	cd "$S"
+	git submodule update --init
 }
 
 src_configure() {
 	local exc=""
 	local excl_pls=""
-	local excl_opts=""
+	local excl_opts=",vistest"
 	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D}"
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
