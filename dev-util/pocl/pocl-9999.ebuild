@@ -16,7 +16,12 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="debug"
 
-DEPEND="sys-devel/clang sys-apps/hwloc"
+DEPEND="
+ sys-devel/clang
+ sys-apps/hwloc
+"
+#dev-libs/ocl-icd
+
 RDEPEND="${DEPEND}"
 
 src_configure() {
