@@ -41,6 +41,7 @@ src_configure() {
 	 -D WITH_TEST_PERFORMANCE:BOOL=OFF
 	 -D WITH_TEST_STATIC:BOOL=OFF
 	 -D WITH_TEST_WARNING:BOOL=OFF
+	 -D WITH_TEST_OPENGL:BOOL=OFF
 	)
 
 	cmake-utils_src_configure
@@ -56,4 +57,19 @@ src_install() {
 	dolib lib/*
 	insinto /usr/include
 	doins include/*
+	insinto /usr/lib/pkgconfig
+	echo '
+prefix=/usr
+exec_prefix=
+libdir=/usr/lib64
+includedir=/include
+
+Name: Halide
+Description: Language for image processing and computational photography
+Version: 0.1
+Libs: -L/usr/lib -l Halide -l InitialModules -l pthread
+Cflags: -I/usr/include
+Requires: OpenCL ncurses
+' > Halide.pc
+	doins Halide.pc
 }
