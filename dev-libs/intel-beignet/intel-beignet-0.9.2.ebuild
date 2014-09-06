@@ -9,7 +9,10 @@ DESCRIPTION="The Beignet GPGPU System for Intel GPUs"
 HOMEPAGE="http://wiki.freedesktop.org/www/Software/Beignet/"
 
 EGIT_REPO_URI="git://anongit.freedesktop.org/beignet"
-EGIT_COMMIT="Release_v${PV}"
+
+if ! [[ "${PV}" == "9999" ]]; then
+	EGIT_COMMIT="Release_v${PV}"
+fi
 
 LICENSE="GPL-2"
 SLOT="0"
