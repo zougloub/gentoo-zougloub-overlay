@@ -25,11 +25,8 @@ src_unpack() {
 }
 
 src_prepare() {
-	:
-}
-
-pkg_setup() {
-	:
+	grep "Requires" library/clFFT.pc.in && die "Need to fix the ebuild"
+	echo "Requires: OpenCL" >> library/clFFT.pc.in
 }
 
 src_configure() {
@@ -40,10 +37,6 @@ src_configure() {
 	)
 
 	cmake-utils_src_configure
-}
-
-src_test() {
-	:
 }
 
 src_install() {
