@@ -10,7 +10,12 @@ HOMEPAGE="http://wiki.freedesktop.org/www/Software/Beignet/"
 
 EGIT_REPO_URI="git://anongit.freedesktop.org/beignet"
 
-if ! [[ "${PV}" == "9999" ]]; then
+if [ ${PV} = "9999" ]; then
+	:
+elif [ ${PV} == "0.9.2_p20140908" ]; then
+	EGIT_BRANCH="Release_v0.9.x"
+	EGIT_COMMIT="768491c1519a72882a3b636983672ce3c58e0608"
+else
 	EGIT_COMMIT="Release_v${PV}"
 fi
 
