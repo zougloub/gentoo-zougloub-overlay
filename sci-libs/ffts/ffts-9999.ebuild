@@ -5,7 +5,7 @@ EGIT_REPO_URI="git://github.com/anthonix/ffts.git"
 LICENSE="BSD"
 KEYWORDS="~x86"
 SLOT=0
-IUSE="+sse -neon"
+IUSE="+single +sse -neon"
 
 inherit eutils git-r3 autotools autotools-utils
 
@@ -25,7 +25,9 @@ src_prepare() {
 }
 
 src_configure() {
+	export CFLAGS="" # super-picky about CFLAGS!
 	local myeconfargs=(
+	 $(use_enable single)
 	 $(use_enable sse)
 	 $(use_enable neon)
 	)
