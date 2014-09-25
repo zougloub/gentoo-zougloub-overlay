@@ -21,6 +21,7 @@ RDEPEND="
  >=sci-visualization/gnuplot-4.0
  >=media-libs/libpng-1.4
  >=dev-db/sqlite-3.4
+ >=dev-python/fn-0.3
 "
 
 python_prepare_all() {
