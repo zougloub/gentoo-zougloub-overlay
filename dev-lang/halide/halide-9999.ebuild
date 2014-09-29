@@ -23,7 +23,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	:
+	sed -i -e 's/tinfo//g' src/CMakeLists.txt
 }
 
 pkg_setup() {
