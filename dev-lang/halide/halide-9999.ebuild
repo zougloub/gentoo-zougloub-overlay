@@ -11,7 +11,7 @@ inherit eutils git-r3 cmake-utils
 
 RDEPEND="
  virtual/opencl
- >=sys-devel/llvm-3.2[clang]
+ >=sys-devel/llvm-3.5[clang]
 "
 
 DEPEND="
@@ -35,7 +35,7 @@ src_configure() {
 	 -D LLVM_INCLUDE:PATH=/usr/include
 	 -D LLVM_BIN:PATH=/usr/bin
 	 -D LLVM_LIB:PATH=/usr/lib
-	 -D LLVM_VERSION:STRING=34
+	 -D LLVM_VERSION:STRING=35
 	 -D WITH_TEST_CORRECTNESS:BOOL=OFF
 	 -D WITH_TEST_ERROR:BOOL=OFF
 	 -D WITH_TEST_PERFORMANCE:BOOL=OFF
@@ -69,7 +69,7 @@ Description: Language for image processing and computational photography
 Version: 0.1
 Libs: -L/usr/lib -l Halide -l InitialModules -l pthread
 Cflags: -I/usr/include
-Requires: OpenCL ncurses
+Requires: ncurses
 ' > Halide.pc
 	doins Halide.pc
 }
