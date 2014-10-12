@@ -32,7 +32,7 @@ DEPEND="${RDEPEND}
 "
 
 EGIT_PROJECT="infinote"
-EGIT_REPO_URI="git://git.0x539.de/git/infinote.git"
+EGIT_REPO_URI="git://github.com/gobby/libinfinity.git"
 
 src_prepare() {
 	./autogen.sh || die "Autogen failed"
@@ -52,7 +52,7 @@ src_configure() {
 
 src_install() {
 	emake DESTDIR="${D}" install || die
-	dodoc AUTHORS NEWS README TODO || die
+	dodoc AUTHORS NEWS README.md TODO || die
 
 	if use server; then
 		newinitd "${FILESDIR}/infinoted.initd" infinoted

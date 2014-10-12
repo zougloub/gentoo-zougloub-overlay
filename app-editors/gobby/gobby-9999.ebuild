@@ -14,7 +14,7 @@ RESTRICT="nomirror"
 SLOT="0.5"
 
 EGIT_PROJECT="gobby"
-EGIT_REPO_URI="git://git.0x539.de/git/gobby.git"
+EGIT_REPO_URI="git://github.com/gobby/gobby.git"
 
 RDEPEND="
  =net-libs/libinfinity-9999[avahi=]
