@@ -55,20 +55,5 @@ src_configure() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 	dodoc AUTHORS NEWS README.md TODO || die
-
-	if use server; then
-		newinitd "${FILESDIR}/infinoted.initd" infinoted
-		newconfd "${FILESDIR}/infinoted.confd" infinoted
-
-		keepdir /var/lib/infinote
-		fowners infinote:infinote /var/lib/infinote
-		fperms 770 /var/lib/infinote
-
-		dosym /usr/bin/infinoted-${MY_PV} /usr/bin/infinoted
-
-		elog "Add local users who should have local access to the documents"
-		elog "created by infinoted to the infinote group."
-		elog "The documents are saved in /var/lib/infinote per default."
-	fi
 }
 
