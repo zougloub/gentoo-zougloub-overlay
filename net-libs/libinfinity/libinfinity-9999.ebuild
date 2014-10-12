@@ -17,14 +17,14 @@ RESTRICT="nomirror"
 RDEPEND="
  >=dev-libs/glib-2.38
  dev-libs/libxml2
- net-libs/gnutls
- net-libs/libgsasl
+ >=net-libs/gnutls-2.12.0
+ >=net-libs/libgsasl-0.2.21
  sys-libs/e2fsprogs-libs
  dev-libs/libgpg-error
  >=dev-libs/libsigc++-2.0
  >=dev-cpp/libxmlpp-2.6
  avahi? ( net-dns/avahi[gtk?] )
- gtk? ( dev-cpp/gtkmm:2.4 x11-libs/gtksourceview:2.0 )
+ gtk? ( dev-cpp/gtkmm:2.4 >=x11-libs/gtk+-3.12.0 x11-libs/gtksourceview:2.0 )
 "
 
 DEPEND="${RDEPEND}
