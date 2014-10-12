@@ -11,7 +11,7 @@ HOMEPAGE="http://gobby.0x539.de/trac/wiki/Infinote/Libinfinity"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="+gtk +server avahi doc static-libs"
+IUSE="+gtk +server avahi doc static-libs introspection"
 RESTRICT="nomirror"
 
 RDEPEND="
@@ -25,6 +25,7 @@ RDEPEND="
  >=dev-cpp/libxmlpp-2.6
  avahi? ( net-dns/avahi[gtk?] )
  gtk? ( dev-cpp/gtkmm:2.4 >=x11-libs/gtk+-3.12.0 x11-libs/gtksourceview:2.0 )
+ introspection? ( >=dev-libs/gobject-introspection-1.0 )
 "
 
 DEPEND="${RDEPEND}
@@ -46,6 +47,7 @@ src_configure() {
 	 $(use_with gtk infgtk) \
 	 $(use_with gtk inftextgtk) \
 	 $(use_enable static-libs static) \
+	 $(use_enable introspection) \
 	 $(use_enable doc gtk-doc) \
 	  || die "Configure failed"
 }
