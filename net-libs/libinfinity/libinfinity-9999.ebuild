@@ -15,7 +15,7 @@ IUSE="+gtk +server avahi doc static-libs"
 RESTRICT="nomirror"
 
 RDEPEND="
- >=dev-libs/glib-2.0
+ >=dev-libs/glib-2.38
  dev-libs/libxml2
  net-libs/gnutls
  net-libs/libgsasl
