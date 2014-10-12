@@ -28,7 +28,7 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
- doc? ( dev-util/gtk-doc )
+ dev-util/gtk-doc
 "
 
 EGIT_PROJECT="infinote"
