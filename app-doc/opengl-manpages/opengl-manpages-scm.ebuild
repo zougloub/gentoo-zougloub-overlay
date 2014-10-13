@@ -54,7 +54,9 @@ src_install() {
 	for repo in man4 man3 man2 manglsl;
 	do
 		pushd $repo
-		doman *
+		for file in $(ls -1); do
+			doman $file
+		done
 		popd
 	done
 }
