@@ -63,7 +63,7 @@ src_install() {
 		done
 		popd >/dev/null 2>&1
 		grep "^MANSECT.*:cl${rev}" man.conf >/dev/null \
-		 || sed -i -e 's/\(MANSECT.*\)/\1:cl'${rev}'/g' man.conf
+		 || sed -i -e 's/^\(MANSECT.*\)/\1:cl'${rev}'/g' man.conf
 	done
 	insinto /etc
 	doins man.conf
