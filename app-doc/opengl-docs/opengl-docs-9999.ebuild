@@ -76,5 +76,7 @@ src_install() {
 		eend 0
 		popd >/dev/null 2>&1
 	done
+	insinto /etc
+	doins man.conf
 }
 
