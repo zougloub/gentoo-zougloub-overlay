@@ -7,7 +7,7 @@ KEYWORDS="~x86"
 SLOT=0
 IUSE="+single +sse -neon"
 
-inherit eutils git-r3 autotools autotools-utils
+inherit eutils git-r3 autotools autotools-utils flag-o-matic
 
 RDEPEND="
 "
@@ -25,7 +25,7 @@ src_prepare() {
 }
 
 src_configure() {
-	export CFLAGS="" # super-picky about CFLAGS!
+	filter-flags '-O*' # ffts is super-picky about CFLAGS!
 	local myeconfargs=(
 	 $(use_enable single)
 	 $(use_enable sse)
