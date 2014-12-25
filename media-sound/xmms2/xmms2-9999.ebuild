@@ -14,7 +14,7 @@ EGIT_REPO_URI="git://git.xmms2.org/xmms2/xmms2-devel.git"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="aac alsa ao +asx +avcodec cdda clientonly coreaudio curl +cpp daap
+IUSE="aac alsa ao +asx +avcodec cdda clientonly coreaudio curl +cxx daap
 +diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
 +nophonehome ofa oss perl python rss ruby samba shout sid speex test vorbis wma xml +xspf"
 
@@ -57,7 +57,7 @@ DEPEND="
  )
  >=dev-lang/python-2.4.3
  >=dev-libs/glib-2.12.9
- cpp? ( >=dev-libs/boost-1.32 )
+ cxx? ( >=dev-libs/boost-1.32 )
  ecore? ( x11-libs/ecore )
  fam? ( app-admin/gamin )
  perl? ( >=dev-lang/perl-5.8.8 )
@@ -81,7 +81,7 @@ src_configure() {
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
 	else
-		for x in cpp:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby test:tests ; do
+		for x in cxx:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby test:tests ; do
 			use ${x/:*} || excl_opts="${excl_opts},${x/*:}"
 		done
 		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa oss rss samba sid speex vorbis xml xspf ; do
