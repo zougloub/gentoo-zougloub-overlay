@@ -16,7 +16,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="aac alsa ao +asx +avcodec cdda clientonly coreaudio curl +cxx daap
 +diskwrite -ecore eq fam flac jack +lastfm mac mms modplug mp3 mp4 musepack
-+nophonehome ofa oss perl python rss ruby samba shout sid speex test vorbis wma xml +xspf"
++nophonehome ofa opus oss perl python rss ruby samba shout sid speex test vorbis
+wma xml +xspf"
 
 RESTRICT="mirror"
 
@@ -45,6 +46,7 @@ DEPEND="
   mp3? ( media-sound/madplay )
   mp4? ( media-video/ffmpeg )
   ofa? ( media-libs/libofa )
+  opus? ( media-libs/opus )
   rss? ( dev-libs/libxml2 )
   samba? ( net-fs/samba )
   sid? ( media-sound/sidplay
@@ -84,7 +86,7 @@ src_configure() {
 		for x in cxx:xmmsclient++,xmmsclient++-glib ecore:xmmsclient-ecore fam:medialib-updater nophonehome:et perl python ruby test:tests ; do
 			use ${x/:*} || excl_opts="${excl_opts},${x/*:}"
 		done
-		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa oss rss samba sid speex vorbis xml xspf ; do
+		for x in aac:faad alsa ao asx avcodec cdda coreaudio curl daap diskwrite eq:equalizer flac jack lastfm mac mp3:mad mp4 mms modplug musepack ofa opus oss rss samba sid speex vorbis xml xspf ; do
 			use ${x/:*} || excl_pls="${excl_pls},${x/*:}"
 		done
 	fi
