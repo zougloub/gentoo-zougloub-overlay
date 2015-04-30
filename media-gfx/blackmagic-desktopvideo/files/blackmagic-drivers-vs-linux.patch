@@ -1,0 +1,44 @@
+diff --git a/usr/src/blackmagic-10.4a17/blackmagic_core.c b/usr/src/blackmagic-10.4a17/blackmagic_core.c
+index 6946b95..d571b0c 100644
+--- a/usr/src/blackmagic-10.4a17/blackmagic_core.c
++++ b/usr/src/blackmagic-10.4a17/blackmagic_core.c
+@@ -186,7 +186,7 @@ static int blackmagic_open(struct inode *inode, struct file *filp)
+ 	void *uclient;
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+ 	//NOTE: inode is/may be NULL on >=2.6.36
+-	ddev = blackmagic_find_device_by_minor(iminor(filp->f_dentry->d_inode));
++	ddev = blackmagic_find_device_by_minor(iminor(filp->f_path.dentry));
+ #else
+ 	ddev = blackmagic_find_device_by_minor(iminor(inode));
+ #endif
+@@ -209,7 +209,7 @@ static int blackmagic_release(struct inode *inode, struct file *filp)
+ {
+ 	struct blackmagic_device *ddev;
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+-	ddev = blackmagic_find_device_by_minor(iminor(filp->f_dentry->d_inode));
++	ddev = blackmagic_find_device_by_minor(iminor(filp->f_path.dentry));
+ #else
+ 	ddev = blackmagic_find_device_by_minor(iminor(inode));
+ #endif
+@@ -238,7 +238,7 @@ blackmagic_ioctl(struct inode *inode, struct file *filp,
+ {
+ 	struct blackmagic_device *ddev;
+ #if HAVE_UNLOCKED_IOCTL
+-	ddev = blackmagic_find_device_by_minor(iminor(filp->f_dentry->d_inode));
++	ddev = blackmagic_find_device_by_minor(iminor(filp->f_path.dentry));
+ #else
+ 	ddev = blackmagic_find_device_by_minor(iminor(inode));
+ #endif
+diff --git a/usr/src/blackmagic-io-10.4a17/bmio_client.c b/usr/src/blackmagic-io-10.4a17/bmio_client.c
+index 434c7fa..2433362 100644
+--- a/usr/src/blackmagic-io-10.4a17/bmio_client.c
++++ b/usr/src/blackmagic-io-10.4a17/bmio_client.c
+@@ -92,7 +92,7 @@ static int bmio_open(struct inode *inode, struct file *filp)
+ 	bmio_driver_t* drv;
+ 
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 36)
+-	drv = bmio_driver_find_by_inode(filp->f_dentry->d_inode);
++	drv = bmio_driver_find_by_inode(filp->f_path.dentry);
+ #else
+ 	drv = bmio_driver_find_by_inode(inode);
+ #endif
