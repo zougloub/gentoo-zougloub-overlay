@@ -51,7 +51,7 @@ src_install() {
 	mv * ${D}/
 	popd
 	pushd "${S}/other/x86_64/mediaexpress-3.4a9-x86_64"
-	mv * ${D}/
+	mv -f * ${D}/
 	popd
 }
 
