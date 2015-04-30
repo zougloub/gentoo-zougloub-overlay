@@ -48,10 +48,10 @@ src_compile() {
 src_install() {
 	pushd "${S}/other/x86_64/desktopvideo-10.4a17-x86_64"
 	rm -rf usr/src
-	mv * ${D}/
+	rsync -Parisx * ${D}/
 	popd
 	pushd "${S}/other/x86_64/mediaexpress-3.4a9-x86_64"
-	mv -f * ${D}/
+	rsync -Parisx * ${D}/
 	popd
 }
 
