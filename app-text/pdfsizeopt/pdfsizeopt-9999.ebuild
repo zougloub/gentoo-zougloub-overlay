@@ -5,9 +5,9 @@ EAPI=5
 inherit eutils git-r3
 
 DESCRIPTION="PDF file size optimizer"
-HOMEPAGE="http://code.google.com/p/pdfsizeopt"
+HOMEPAGE="https://github.com/pts/pdfsizeopt"
 SRC_URI=""
-EGIT_REPO_URI="https://code.google.com/p/pdfsizeopt"
+EGIT_REPO_URI="https://github.com/pts/pdfsizeopt.git"
 
 LICENSE="GPL-2"
 SLOT="0"
