@@ -25,6 +25,7 @@ RDEPEND="
 "
 
 DEPEND="
+ >=dev-python/setuptools-1.7.0
  >=dev-python/cython-0.18.0
 "
 
