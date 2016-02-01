@@ -5,7 +5,7 @@
 EAPI=5
 PYTHON_COMPAT=( python2_{6,7} pypy2_0 )
 
-inherit eutils distutils-r1 git-r3
+inherit eutils multiprocessing distutils-r1 git-r3
 
 DESCRIPTION="Library for Machine Intelligence"
 
@@ -24,10 +24,30 @@ RDEPEND="
 
 DEPEND="
  >=sys-devel/bazel-0.1.1
+ >=dev-python/wheel-0.26.0
+ >=dev-python/six-1.10.0
+ >=dev-lang/swig-3.0.8
 "
 
 src_prepare() {
 	:
+}
+
+src_configure() {
+    yes "" | ./configure
+
+	cat > CROSSTOOL << EOF
+tool_path {
+ name: "gcc"
+ path: "${CC}"
+}
+tool_path {
+ name: "g++"
+ path: "${CXX}"
+EOF
+
+	echo "Will build with $(makeopts_jobs) jobs"
+	
 }
 
 src_compile() {
@@ -41,11 +61,14 @@ src_compile() {
 	
 	cat > bazelrc << EOF
 startup --batch
-build --spawn_strategy=standalone --genrule_strategy=standalone --verbose --verbose_failures
+build --spawn_strategy=standalone --genrule_strategy=standalone
+build --jobs $(makeopts_jobs)
 EOF
 	export BAZELRC="$PWD/bazelrc"
 
-	bazel build -c opt //tensorflow/tools/pip_package:build_pip_package \
+	bazel build \
+	 --spawn_strategy=standalone --genrule_strategy=standalone \
+	 -c opt //tensorflow/tools/pip_package:build_pip_package \
 	 || die "Couldn't Bazel build"
 }
 
