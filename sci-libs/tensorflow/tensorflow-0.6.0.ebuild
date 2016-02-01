@@ -30,7 +30,8 @@ DEPEND="
 "
 
 src_prepare() {
-	:
+	sed -i -e 's/protobuf == 3.0.0a3/protobuf >= 2.6.0/g' \
+	 tensorflow/tools/pip_package/setup.py
 }
 
 src_configure() {
@@ -73,6 +74,8 @@ EOF
 }
 
 src_install() {
-	:
+    bazel-bin/tensorflow/tools/pip_package/build_pip_package $PWD/tensorflow_pkg
+	pip install --root "${ED}" $PWD/tensorflow_pkg/*.whl
+	rm -rf "${ED}"/usr/lib*/python*/site-packages/google/protobuf
 }
 
