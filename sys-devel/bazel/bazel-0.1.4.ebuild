@@ -40,6 +40,12 @@ src_compile() {
 	local -x SANDBOX_WRITE="${SANDBOX_WRITE}"
 	addwrite /proc/self
 
+	cat > bazelrc << EOF
+startup --batch
+build --spawn_strategy=standalone --genrule_strategy=standalone
+EOF
+	export BAZELRC="$PWD/bazelrc"
+
 	# And run that ugly compile script
 	./compile.sh || die "Couldn't compile"
 }
