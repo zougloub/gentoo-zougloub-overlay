@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,25 +6,29 @@ EAPI=5
 inherit eutils elisp-common
 
 DESCRIPTION="Extensible window manager using a Lisp-based scripting language"
-HOMEPAGE="http://sawfish.wikia.com/"
-SRC_URI="http://download.tuxfamily.org/sawfish/${P}.tar.xz"
+HOMEPAGE="http://sawfish.tuxfamily.org/"
+SRC_URI="http://download.tuxfamily.org/sawfish/${PN}_${PV}.tar.xz"
 
 LICENSE="GPL-2 Artistic-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE="emacs nls xinerama"
 
-RDEPEND="emacs? ( !app-emacs/sawfish )
-	>=dev-libs/librep-0.92.1
-	>=x11-libs/rep-gtk-0.90.7
-	|| ( x11-libs/pangox-compat <x11-libs/pango-1.31[X] )
-	>=x11-libs/gtk+-2.24.0:2
-	x11-libs/libXtst
-	nls? ( sys-devel/gettext )
-	xinerama? ( x11-libs/libXinerama )"
+RDEPEND="
+ emacs? ( !app-emacs/sawfish )
+ >=dev-libs/librep-0.92.5
+ >=x11-libs/rep-gtk-0.90.8.1
+ || ( x11-libs/pangox-compat <x11-libs/pango-1.31[X] )
+ >=x11-libs/gtk+-2.24.0:2
+ x11-libs/libXtst
+ nls? ( sys-devel/gettext )
+ xinerama? ( x11-libs/libXinerama )"
 DEPEND="${RDEPEND}
-	app-arch/xz-utils
-	virtual/pkgconfig"
+ app-arch/xz-utils
+ virtual/pkgconfig
+"
+
+S="${WORKDIR}/${PN}_${PV}"
 
 src_prepare() {
 	:
