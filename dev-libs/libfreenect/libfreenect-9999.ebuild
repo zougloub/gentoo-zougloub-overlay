@@ -3,13 +3,13 @@
 # $Header: $
 
 EAPI="5"
-PYTHON_DEPEND="python? 2:2.7"
+PYTHON_COMPAT=( python{2_7,3_{3,4,5}} pypy2_0 )
 
-inherit cmake-utils git-2 multilib python
+inherit cmake-utils git-r3 multilib python-r1
 
 
 DESCRIPTION="Core library for accessing the Microsoft Kinect."
-HOMEPAGE="https://github.com/OpenKinect/${PN}"
+HOMEPAGE="https://github.com/OpenKinect/libfreenect"
 EGIT_REPO_URI="git://github.com/OpenKinect/${PN}.git"
 
 LICENSE="Apache-2.0 GPL-2"
@@ -27,6 +27,7 @@ COMMON_DEP="
  )
  opencv? ( media-libs/opencv )
  python? ( dev-python/numpy )
+ openni2? ( dev-libs/OpenNI2 )
 "
 
 RDEPEND="
@@ -47,18 +48,6 @@ src_pretend() {
 	fi
 }
 
-pkg_setup() {
-	if use python; then
-		python_set_active_version 2
-		python_pkg_setup
-	fi
-}
-
-src_prepare() {
-	sed -i -e 's/DESTINATION ${PYTHON_SITE_PACKAGES}/DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages"/g' \
-	 wrappers/python/CMakeLists.txt
-}
-
 src_configure() {
 	local mycmakeargs=(
 		$(cmake-utils_use_build audio    AUDIO)
@@ -69,20 +58,42 @@ src_configure() {
 		$(cmake-utils_use_build fakenect FAKENECT)
 		$(cmake-utils_use_build opencv   CV)
 		$(cmake-utils_use_build openni2  OPENNI2_DRIVER)
-		$(cmake-utils_use_build python   PYTHON)
 	)
+
+	cfg() {
+		echo $EPYTHON
+		if [ "x${EPYTHON//python3/}" != "x${EPYTHON}" ]; then
+			mycmakeargs+=(
+			 $(cmake-utils_use_build python   PYTHON3)
+			)
+		fi
+		if [ "x${EPYTHON//python2/}" != "x${EPYTHON}" ]; then
+			mycmakeargs+=(
+			 $(cmake-utils_use_build python   PYTHON2)
+			)
+		fi
+	}
+
+	python_foreach_impl cfg
+
+	unset -f PYTHON
+
+	# work around cmake-3.1.0-FindPythonInterp.patch
+	export CMAKE_BUILD_TYPE=RelWithDebInfo
+
 	cmake-utils_src_configure
 }
 
 src_install() {
 	cmake-utils_src_install
 
-	# udev rules
 	insinto /lib/udev/rules.d/
 	doins "${S}"/platform/linux/udev/51-kinect.rules
 
-	# documentation
-	dodoc HACKING README.md
+	mkdir -p "${D}/usr/lib/OpenNI2"
+	mv "${D}/usr/lib/OpenNI2-FreenectDriver" "${D}/usr/lib/OpenNI2/Drivers"
+
+	dodoc README.md
 	if use doc; then
 		cd doc
 		doxygen || ewarn "doxygen failed"
@@ -98,3 +109,4 @@ pkg_postinst() {
 	elog "Make sure your user is in the 'video' group"
 	elog "Just run 'gpasswd -a <USER> video', then have <USER> re-login."
 }
+
