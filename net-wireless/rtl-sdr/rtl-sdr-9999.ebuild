@@ -1,6 +1,6 @@
 EAPI=5
-CMAKE_BUILD_TYPE=Release
-inherit cmake-utils git-r3
+
+inherit cmake-utils git-r3 toolchain-funcs multilib-minimal
 
 DESCRIPTION="RTL2832U interface"
 HOMEPAGE="http://sdr.osmocom.org/trac/wiki/rtl-sdr"
@@ -18,17 +18,18 @@ RDEPEND="
 DEPEND="${RDEPEND}
 "
 
-src_configure() {
+multilib_src_configure() {
 	local mycmakeargs=(
 		-DINSTALL_UDEV_RULES=ON
 	)
 	cmake-utils_src_configure
 }
 
-src_compile() {
+multilib_src_compile() {
 	cmake-utils_src_compile
 }
 
-src_install() {
+multilib_src_install() {
 	DOCS="README" cmake-utils_src_install
+	mv ${D}/usr/{lib,$(get_abi_LIBDIR)}
 }
