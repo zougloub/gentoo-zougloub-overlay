@@ -3,8 +3,10 @@
 # $Header: $
 
 EAPI=5
+PYTHON_COMPAT=(python{2_{6,7},3_{2,3,4,5}})
+PYTHON_REQ_USE="threads(+)"
 
-inherit eutils toolchain-funcs waf-utils git-r3
+inherit eutils toolchain-funcs python-any-r1 waf-utils git-r3
 
 DESCRIPTION="X(cross)platform Music Multiplexing System. The new generation of the XMMS player."
 HOMEPAGE="http://xmms2.xmms.org"
@@ -22,6 +24,7 @@ wma xml +xspf"
 RESTRICT="mirror"
 
 DEPEND="
+ ${PYTHON_DEPS}
  dev-util/cunit
  !clientonly? (
   >=dev-db/sqlite-3.3.4
@@ -69,6 +72,10 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}"
+
+pkg_setup() {
+	python-any-r1_pkg_setup
+}
 
 src_prepare() {
 	cd "$S"
