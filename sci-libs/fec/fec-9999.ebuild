@@ -35,5 +35,7 @@ multilib_src_compile() {
 multilib_src_install() {
 	dolib libfec.so
 	dolib libfec.a
+	insinto /usr/include
+	doins "${S}/fec.h"
 }
 
