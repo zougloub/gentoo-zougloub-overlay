@@ -14,11 +14,11 @@ IUSE=""
 KEYWORDS=""
 
 RDEPEND="
+ dev-python/twisted-web
+ dev-python/werkzeug
 "
 DEPEND="
- dev-python/setuptools
- dev-python/twisted
- dev-python/werkzeug
+ >=dev-python/setuptools-24.0.1
  $RDEPEND
 "
 
