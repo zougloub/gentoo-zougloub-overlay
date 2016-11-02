@@ -55,11 +55,11 @@ RDEPEND="
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 src_configure() {
--DUSE_LIBDNN:BOOL="1"
 
--DUSE_LEVELDB:BOOL="0"
-	-DAtlas_LAPACK_LIBRARY:FILEPATH="/usr/lib64/libatllapack.so"
-	
+	#-DUSE_LIBDNN:BOOL="1"
+	#-DUSE_LEVELDB:BOOL="0"
+	#-DAtlas_LAPACK_LIBRARY:FILEPATH="/usr/lib64/libatllapack.so"
+
 	# Respect CFLAGS
 	sed -e '/COMMON_FLAGS/s/-O2//' -i Makefile
 
@@ -88,7 +88,7 @@ EOF
 		# This should be handled by Makefile itself, but somehow is broken
 		sed -e "/CUDA_LIB_DIR/s/lib/$(get_libdir)/" -i Makefile || die "sed failed"
 	elif use opencl; then
-		:
+		echo "VIENNACL_DIR := /usr/include" >> Makefile.config
 	else
 		echo "CPU_ONLY := 1" >> Makefile.config
 	fi
