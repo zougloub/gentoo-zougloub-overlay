@@ -14,7 +14,7 @@ SRC_URI=""
 LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS=""
-IUSE="cuda opencl python"
+IUSE="cuda opencl +python"
 
 CDEPEND="
 	dev-libs/boost:=[python?]
@@ -29,7 +29,7 @@ CDEPEND="
 	sci-libs/atlas[lapack]
 	opencl? (
 		sci-libs/viennacl
-		clblas
+		sci-libs/clblas
 	)
 	cuda? (
 		dev-util/nvidia-cuda-toolkit
