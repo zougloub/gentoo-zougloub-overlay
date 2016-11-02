@@ -27,9 +27,11 @@ CDEPEND="
 	app-arch/snappy:=
 	dev-db/lmdb:=
 	sci-libs/atlas[lapack]
+	sci-libs/fftw:3.0
 	opencl? (
 		sci-libs/viennacl
 		sci-libs/clblas
+		sci-libs/clfft
 	)
 	cuda? (
 		dev-util/nvidia-cuda-toolkit
@@ -88,6 +90,9 @@ EOF
 		# This should be handled by Makefile itself, but somehow is broken
 		sed -e "/CUDA_LIB_DIR/s/lib/$(get_libdir)/" -i Makefile || die "sed failed"
 	elif use opencl; then
+		echo "USE_CLBLAS := 1" >> Makefile.config
+		echo "USE_GREENTEA := 1" >> Makefile.config
+		echo "USE_FFT := 1" >> Makefile.config
 		echo "VIENNACL_DIR := /usr/include" >> Makefile.config
 	else
 		echo "CPU_ONLY := 1" >> Makefile.config
