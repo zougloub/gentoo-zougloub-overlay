@@ -92,7 +92,7 @@ EOF
 	elif use opencl; then
 		echo "USE_CLBLAS := 1" >> Makefile.config
 		echo "USE_GREENTEA := 1" >> Makefile.config
-		echo "USE_FFT := 1" >> Makefile.config
+		#echo "USE_FFT := 1" >> Makefile.config
 		echo "VIENNACL_DIR := /usr/include" >> Makefile.config
 	else
 		echo "CPU_ONLY := 1" >> Makefile.config
