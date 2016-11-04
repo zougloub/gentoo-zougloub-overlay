@@ -10,16 +10,17 @@ SRC_URI=""
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 CDEPEND="
+ virtual/opencl
 "
 DEPEND="
-	${CDEPEND}
+ ${CDEPEND}
 "
 RDEPEND="
-	${CDEPEND}
+ ${CDEPEND}
 "
 
 src_prepare() {

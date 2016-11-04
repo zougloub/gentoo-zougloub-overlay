@@ -31,7 +31,7 @@ DEPEND="
 "
 
 LICENSE="GPL"
-KEYWORDS="~x86"
+KEYWORDS="~x86 ~amd64"
 SLOT="0"
 
 python_compile() {

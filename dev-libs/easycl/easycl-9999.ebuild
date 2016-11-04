@@ -10,17 +10,17 @@ SRC_URI=""
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 CDEPEND="
  dev-libs/clew
 "
 DEPEND="
-	${CDEPEND}
+ ${CDEPEND}
 "
 RDEPEND="
-	${CDEPEND}
+ ${CDEPEND}
 "
 
 src_prepare() {

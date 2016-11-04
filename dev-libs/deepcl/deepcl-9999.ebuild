@@ -13,27 +13,20 @@ SRC_URI=""
 
 LICENSE="MPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 IUSE="+python"
 
 CDEPEND="
-	dev-libs/easycl
-	python? (
-		${PYTHON_DEPS}
-	)
+ dev-libs/easycl
+ python? (
+  ${PYTHON_DEPS}
+ )
 "
 DEPEND="
-	${CDEPEND}
-	sys-devel/bc
+ ${CDEPEND}
 "
 RDEPEND="
-	${CDEPEND}
-	python? (
-		dev-python/pandas[${PYTHON_USEDEP}]
-		dev-python/numpy[${PYTHON_USEDEP}]
-		media-gfx/pydot[${PYTHON_USEDEP}]
-		sci-libs/scikits_image[${PYTHON_USEDEP}]
-	)
+ ${CDEPEND}
 "
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
