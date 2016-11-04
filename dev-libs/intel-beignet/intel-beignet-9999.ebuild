@@ -29,13 +29,12 @@ else
 fi
 
 DEPEND="
- >=dev-util/opencl-headers-1.2
+ virtual/opencl
  >=sys-devel/gcc-4.6
- dev-libs/ocl-icd
 "
 
 RDEPEND="
- app-admin/eselect-opencl
+ virtual/opencl
  media-libs/mesa
  sys-devel/clang
  >=sys-devel/llvm-3.1
