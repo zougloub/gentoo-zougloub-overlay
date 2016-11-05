@@ -15,10 +15,11 @@ IUSE=""
 
 RDEPEND=">=dev-lang/python-3.0"
 DEPEND="
-$RDEPEND
+ $RDEPEND
 "
 RESTRICT="primaryuri"
-EGIT_REPO_URI="git://gitorious.org/ansicat/ansicat.git"
+
+EGIT_REPO_URI="git://github.com/zougloub/ansicat.git"
 
 src_install() {
 	dobin ansi*
