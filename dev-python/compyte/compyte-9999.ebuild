@@ -28,7 +28,7 @@ src_compile() {
 
 src_install() {
 	ins() {
-		insinto "$(python_get_sitedir)/compyte"
+		insinto "$(python_get_sitedir)/pyopencl/compyte"
 		doins *.py
 		doins -r ndarray
 	}
