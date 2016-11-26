@@ -28,17 +28,25 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
+src_prepare() {
+	rm .gitmodules
+	rm -rf pyopencl/compyte
+}
+
 src_configure() {
 	local myconf=()
 	if use opengl; then
 		myconf+=(--cl-enable-gl)
 	fi
 
+	cfg() {
 	"${PYTHON}" configure.py \
 		--boost-compiler=gcc \
 		--boost-python-libname=boost_python-${PYTHON_ABI}-mt \
 		--no-use-shipped-boost \
 		"${myconf[@]}"
+	}
+	#python_foreach_impl cfg
 }
 
 python_install_all() {
