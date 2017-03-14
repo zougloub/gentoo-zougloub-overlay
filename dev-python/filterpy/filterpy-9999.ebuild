@@ -1,6 +1,6 @@
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7,3_1,3_2,3_3,3_4} pypy{1_8,1_9} )
+PYTHON_COMPAT=( python{2_6,2_7,3_1,3_2,3_3,3_4,3_5,3_6} pypy{1_8,1_9} )
 
 inherit distutils-r1 git-2
 
@@ -16,7 +16,7 @@ IUSE="test"
 
 DEPEND="
  dev-python/numpy
- dev-python/scipy
+ sci-libs/scipy
  dev-python/matplotlib
 "
 
