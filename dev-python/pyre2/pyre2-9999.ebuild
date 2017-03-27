@@ -12,6 +12,7 @@ SRC_URI="mirror://pypi/r/re2/re2-${PV}.tar.gz -> ${P}.tar.gz"
 
 if [ "$PV" == "9999" ]; then
    EGIT_REPO_URI="git://github.com/facebook/pyre2.git"
+   SRC_URI=""
 fi
 
 LICENSE="BSD"
