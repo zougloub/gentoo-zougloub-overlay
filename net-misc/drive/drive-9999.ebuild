@@ -46,9 +46,7 @@ src_prepare() {
 
 src_compile() {
 	GOPATH="${WORKDIR}/${P}" \
-		go install -v -work -x ${EGO_BUILD_FLAGS} "${EGO_PN}"
-	einfo "Error $?"
-	#	|| die
+		go install -v -work -x ${EGO_BUILD_FLAGS} "${EGO_PN}" || die
 }
 
 src_install() {
