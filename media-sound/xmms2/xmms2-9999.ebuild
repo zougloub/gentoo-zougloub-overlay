@@ -120,7 +120,7 @@ src_install() {
 	# Note: waf-utils_src_install doesn't take parameters, so...
 	"${WAF_BINARY}" --destdir="${D}" install --without-ldconfig || die
 	
-	dodoc AUTHORS TODO README
+	dodoc AUTHORS TODO README.mdown
 }
 
 pkg_postinst() {
