@@ -11,7 +11,7 @@ SRC_URI="" # "http://portland.freedesktop.org/download/${MY_P}.tar.gz"
 EGIT_REPO_URI="git://anongit.freedesktop.org/xdg/xdg-utils"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS=""
 IUSE="doc"
 
 RDEPEND="
