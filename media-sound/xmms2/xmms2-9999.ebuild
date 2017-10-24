@@ -86,7 +86,7 @@ src_configure() {
 	local exc=""
 	local excl_pls=""
 	local excl_opts=",vistest"
-	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D}"
+	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D} --without-ldconfig"
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
 	else
