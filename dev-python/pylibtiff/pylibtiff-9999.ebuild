@@ -4,13 +4,13 @@
 EAPI=5
 PYTHON_COMPAT=( python{2_5,2_6,2_7} pypy{1_9,2_0} )
 
-inherit subversion distutils-r1
+inherit git-r3 distutils-r1
 
 DESCRIPTION="libtiff wrapper for Python"
-HOMEPAGE="https://code.google.com/p/pylibtiff/"
+HOMEPAGE="https://github.com/pearu/pylibtiff"
 SRC_URI=""
 
-ESVN_REPO_URI="http://pylibtiff.googlecode.com/svn/trunk"
+EGIT_REPO_URI="git://github.com/pearu/pylibtiff"
 
 LICENSE="BSD-3"
 SLOT="0"
