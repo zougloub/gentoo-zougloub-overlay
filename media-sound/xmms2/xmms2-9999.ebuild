@@ -86,7 +86,7 @@ src_configure() {
 	local exc=""
 	local excl_pls=""
 	local excl_opts=",vistest"
-	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D} --without-ldconfig"
+	local options="--conf-prefix=/etc --prefix=/usr --destdir=${D}"
 	if use clientonly ; then
 		exc="--without-xmms2d=1 "
 	else
@@ -117,7 +117,7 @@ src_configure() {
 }
 
 src_install() {
-	waf-utils_src_install || die
+	waf-utils_src_install --without-ldconfig || die
 	dodoc AUTHORS TODO README
 }
 
