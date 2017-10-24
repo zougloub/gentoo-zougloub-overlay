@@ -117,7 +117,9 @@ src_configure() {
 }
 
 src_install() {
-	waf-utils_src_install --without-ldconfig || die
+	# Note: waf-utils_src_install doesn't take parameters, so...
+	"${WAF_BINARY}" --destdir="${D}" install --without-ldconfig || die
+	
 	dodoc AUTHORS TODO README
 }
 
