@@ -3,7 +3,7 @@ EAPI=5
 EGIT_REPO_URI="git://github.com/exmakhina/DeepCL.git"
 EGIT_BRANCH="unbundle"
 
-PYTHON_COMPAT=( python2_7 python3_4 python3_5 )
+PYTHON_COMPAT=( python{2_7,3_{4,5,6}} )
 
 inherit toolchain-funcs multilib cmake-utils git-r3 python-r1 python-utils-r1
 

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-PYTHON_COMPAT=( python{2_5,2_6,2_7,3_4,3_5} pypy{1_9,2_0} )
+PYTHON_COMPAT=( python{2_{5,6,7},3_{4,5,6}} pypy{1_9,2_0} )
 
 inherit mercurial distutils-r1
 

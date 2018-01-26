@@ -1,6 +1,6 @@
 EAPI="5"
 
-PYTHON_COMPAT=( python{2_5,2_6,2_7,3_1,3_2,3_3,3_4,3_5} pypy{1_9,2_0} )
+PYTHON_COMPAT=( python{2_{5,6,7},3_{1,2,3,4,5,6}} pypy{1_9,2_0} )
 
 inherit distutils-r1 git-r3
 

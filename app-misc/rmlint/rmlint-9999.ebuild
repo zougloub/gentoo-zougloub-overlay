@@ -1,5 +1,5 @@
 EAPI=5
-PYTHON_COMPAT=( python3_4 python3_5 )
+PYTHON_COMPAT=( python3_{4,5,6} )
 
 inherit scons-utils eutils git-r3 python-single-r1 gnome2-utils
 
