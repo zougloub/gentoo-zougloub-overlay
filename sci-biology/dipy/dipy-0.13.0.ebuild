@@ -20,11 +20,13 @@ RDEPEND="
 	dev-python/numpy[${PYTHON_USEDEP}]
 	sci-libs/scipy[${PYTHON_USEDEP}]
 	sci-libs/nibabel[${PYTHON_USEDEP}]
+	dev-python/h5py[${PYTHON_USEDEP}]
 "
 DEPEND="
 	test? ( ${RDEPEND} dev-python/nose[${PYTHON_USEDEP}] )
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	dev-python/cython[${PYTHON_USEDEP}]
+	dev-python/h5py[${PYTHON_USEDEP}]
 "
 
 python_test() {
