@@ -76,7 +76,9 @@ src_configure() {
 src_install() {
 	cd "${BUILD_DIR}"
 	dobin bin/HalideTraceViz
-	dobin bin/bitcode2cpp
+	dobin bin/HalideTraceDump
+	dobin bin/binary2cpp
+	dobin bin/build_halide_h
 	dolib lib/libHalide.so
 	insinto /usr/include
 	doins include/*
